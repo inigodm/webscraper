@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'war'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation group: 'javax', name: 'javaee-api', version: '7.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "net.sourceforge.htmlunit:htmlunit:2.43.0"
+    implementation 'com.google.code.gson:gson:2.8.6'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
+    testCompile group: 'io.mockk', name: 'mockk', version: '1.10.0'
+    testCompile 'com.willowtreeapps.assertk:assertk-jvm:0.21'
+    testImplementation "com.github.javafaker:javafaker:1.0.2"
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
