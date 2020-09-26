@@ -12,7 +12,11 @@ var TABLE_PRODUCTS_CREATE = """CREATE TABLE IF NOT EXISTS products
                         desc TEXT,
                         price integer,
                         extra TEXT,
-                        picture BLOB)"""
+                        picture BLOB,
+                        page TEXT,
+                        type TEXT,
+                        active integer,
+                        created_at integer)"""
 var TEST_INSERT = """insert into products (name, desc, price)
          values ('name', 'description', 21500)"""
 
@@ -55,10 +59,12 @@ class RepositoryConnection(dataBaseFile : String) {
             connect()
         }
         var sql = statement.replaceFirst("?", data.name)
-        sql = sql.replaceFirst("?", data.desc)
+        sql = sql.replaceFirst("?", data.desc ?: "")
         sql = sql.replaceFirst("?", data.price.toString())
         sql = sql.replaceFirst("?", Gson().toJson(data.extra))
-        sql = sql.replaceFirst("?", data.desc)
+        sql = sql.replaceFirst("?", data.desc ?: "")
+        sql = sql.replaceFirst("?", data.page)
+        sql = sql.replaceFirst("?", data.type ?: "")
         println(sql)
         var statement = conn!!.prepareStatement(statement)
         statement.use {
@@ -66,6 +72,8 @@ class RepositoryConnection(dataBaseFile : String) {
             statement.setString(2, data.desc)
             statement.setInt(3, data.price)
             statement.setString(4, Gson().toJson(data.extra))
+            statement.setString(5, data.page)
+            statement.setString(6, data.type)
             var res = statement.executeUpdate()
             println("OK -> $res")
         }
