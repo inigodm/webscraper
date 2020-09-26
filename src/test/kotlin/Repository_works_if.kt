@@ -25,7 +25,7 @@ class RepositoryManagerTest{
 
         verify {
             connection.executePreparedStatement(
-                    "insert into products (name, desc, price, extra) values (?, ?, ?, ?)", itemData)
+                    any(), eq(itemData))
         }
     }
 }
