@@ -26,7 +26,7 @@ abstract class WebScrapper(var root: String) {
         return@throwsServiceException Jsoup.parse(page.asXml());
     }
 
-    abstract fun findInfo(doc: Document, retard: Int = 4): Map<String, List<ItemData>>
+    protected abstract fun findInfo(doc: Document, retard: Int = 4): Map<String, List<ItemData>>
 }
 
 class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/oportunidades/") : WebScrapper(root) {
