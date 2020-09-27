@@ -18,6 +18,9 @@ abstract class WebScrapper(var root: String) {
 
     fun getHtmlDocument(url: String): Document = throwsServiceException {
         var client = WebClient(BrowserVersion.BEST_SUPPORTED)
+        println("=====================================================================================================")
+        println("Going to page $url")
+        println("=====================================================================================================")
         val page: HtmlPage = client.getPage(url)
         client.options.isCssEnabled = false
         client.options.isDownloadImages = false
@@ -79,13 +82,15 @@ class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/
 
     private fun buildItemData(it: Element): ItemData {
         var metadata = mapOf<String, Any>(
-            "N/A" to "previous",
-            it.select(".pic a img").attr("src") to "pic"
+            "previous" to "N/A",
+            "pic" to it.select(".pic a img").attr("src")
         )
+        val regex = "[^\\d]".toRegex()
         return ItemData(
             it.select(".title-3")?.text() ?: "N/A",
             it.select(".desc")?.text() ?: "N/A",
-                it.select(".price .price").text().replace("€ ", "").toInt(),
+                "0${regex.replace(it.select(".price .price").text(), "")}"
+                    .toInt(),
             metadata
         )
     }

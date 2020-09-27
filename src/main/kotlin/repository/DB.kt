@@ -58,14 +58,7 @@ class RepositoryConnection(dataBaseFile : String) {
         if (!isConnected()){
             connect()
         }
-        var sql = statement.replaceFirst("?", data.name)
-        sql = sql.replaceFirst("?", data.desc ?: "")
-        sql = sql.replaceFirst("?", data.price.toString())
-        sql = sql.replaceFirst("?", Gson().toJson(data.extra))
-        sql = sql.replaceFirst("?", data.desc ?: "")
-        sql = sql.replaceFirst("?", data.page)
-        sql = sql.replaceFirst("?", data.type ?: "")
-        println(sql)
+        //logProductInsert(statement, data)
         var statement = conn!!.prepareStatement(statement)
         statement.use {
             statement.setString(1, data.name)
@@ -77,6 +70,17 @@ class RepositoryConnection(dataBaseFile : String) {
             var res = statement.executeUpdate()
             println("OK -> $res")
         }
+    }
+
+    private fun logProductInsert(statement: String, data: ItemData) {
+        var sql = statement.replaceFirst("?", "'${data.name}'")
+        sql = sql.replaceFirst("?", "'${data.desc}'" ?: "")
+        sql = sql.replaceFirst("?", data.price.toString())
+        sql = sql.replaceFirst("?", "'${Gson().toJson(data.extra)}'")
+        sql = sql.replaceFirst("?", "'${data.desc}'" ?: "")
+        sql = sql.replaceFirst("?", "'${data.page}'")
+        sql = sql.replaceFirst("?", "'${data.type}'" ?: "")
+        println(sql)
     }
 
     fun close() {
