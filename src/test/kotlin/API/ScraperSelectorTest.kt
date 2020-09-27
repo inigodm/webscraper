@@ -13,7 +13,7 @@ class ScraperSelectorTest {
     fun `should return scraper for ldcl`() {
         val sut = ScraperSelector()
 
-        val res = sut.findScraperFor("ldcl")
+        val res = sut.findScraperFor("ldlc")
 
         assertThat(res).isInstanceOf(LDLCOportunitiesScrapper::class)
     }
