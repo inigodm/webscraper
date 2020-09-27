@@ -10,4 +10,12 @@ class RepositoryManager(var repo: RepositoryConnection) {
                         " values (?, ?, ?, ?, ?, ?, 1, ${System.currentTimeMillis()})",
         itemData)
     }
+
+    fun forgetProducts() {
+        repo.executeCommand("delete from products where 1=1")
+    }
+
+    fun forgetProductsFromPage(page: String) {
+        repo.executeCommand("delete from products where page = '$page'")
+    }
 }
