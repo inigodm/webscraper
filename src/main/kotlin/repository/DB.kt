@@ -2,9 +2,16 @@ package repository
 
 import com.google.gson.Gson
 import scraper.ItemData
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
+import java.util.*
+import java.util.stream.Collectors
+import java.util.stream.StreamSupport
+
+val PATH = "/home/inigo/projects/ShopScraper"
 
 var TABLE_PRODUCTS_CREATE = """CREATE TABLE IF NOT EXISTS products
                         (id integer PRIMARY KEY,
@@ -20,10 +27,14 @@ var TABLE_PRODUCTS_CREATE = """CREATE TABLE IF NOT EXISTS products
 var TEST_INSERT = """insert into products (name, desc, price)
          values ('name', 'description', 21500)"""
 
-class RepositoryConnection(dataBaseFile : String) {
-    val DB_PATH = "jdbc:sqlite:./sqlite/"
+class RepositoryConnection(dataBaseFile: String) {
+    val DB_PATH = "jdbc:sqlite:$PATH/sqlite/"
     var conn: Connection? = null
     val URL : String = "$DB_PATH$dataBaseFile"
+
+    init{
+        Class.forName("org.sqlite.JDBC")
+    }
 
     fun connect() {
         try {
@@ -38,9 +49,31 @@ class RepositoryConnection(dataBaseFile : String) {
         }
     }
 
-    fun <T> executeQuery(query: String) : T? {
-        return null
+    fun findProducts(query: String) : List<ItemData>? {
+        DriverManager.getConnection(URL).use { conn ->
+            val resultSet = conn?.prepareStatement(query)?.executeQuery()
+            val gson = Gson()
+            val res = mutableListOf<ItemData>()
+            while (resultSet!!.next()) {
+                with(resultSet) {
+                    res.add(ItemData(name = resultSet.getString("name"),
+                            desc = resultSet.getString("desc"),
+                            price = resultSet.getInt("price"),
+                            extra = gson.fromJson(resultSet.getString("extra"), MapParametrizedType()),
+                            page = resultSet.getString("page"),
+                            type = resultSet.getString("type")))
+                }
+            }
+            return res
+        }
     }
+
+    fun <T> toArrayList(iterator: Iterator<T>?): List<T>? {
+        return StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)
+                .collect(Collectors.toCollection { ArrayList() })
+    }
+
 
     fun executeCommand(command: String) {
         if (!isConnected()){
@@ -98,4 +131,18 @@ fun main(args: Array<String>) {
     conn.executeCommand(TABLE_PRODUCTS_CREATE)
     conn.executeCommand(TEST_INSERT)
     conn.close()
+}
+
+class MapParametrizedType: ParameterizedType{
+
+    override fun getActualTypeArguments(): Array<Type> {
+        return arrayOf<Type>(String::class.java, Any::class.java)
+    }
+    override fun getRawType(): Type {
+        return Map::class.java
+    }
+    override fun getOwnerType(): Type? {
+        return null
+    }
+
 }

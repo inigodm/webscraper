@@ -1,9 +1,9 @@
 package shopscraper
 
-import API.RestClient
-import API.ScraperSelector
 import com.google.gson.Gson
 import exceptions.IncorrectNumberOfParams
+import repository.RepositoryConnection
+import repository.RepositoryManager
 import javax.servlet.annotation.WebServlet
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
@@ -12,13 +12,21 @@ import javax.servlet.http.HttpServletResponse
 @WebServlet(name = "SCRAPER", value = ["/scrap/*"])
 class ScraperController : HttpServlet() {
     override fun doGet(req: HttpServletRequest, res: HttpServletResponse) {
-        var rest = RestClient(ScraperSelector())
-        //res.writer.write(Gson().toJson(rest.getAllProductsOf(req.getRequestURI())))
-        res.writer.write(Gson().toJson(getParams(req.getRequestURI(), "/web/")))
+        val repo = RepositoryManager(RepositoryConnection("scraper.db"))
+        val params = getParamsAsMap(req.getRequestURI(), "/web/")
+        res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!)))
     }
 
-    fun getParams(uri: String, urlBase: String): Map<String, String> {
+    fun getParamsAsMap(uri: String, urlBase: String): Map<String, String> {
         return uri.replaceFirst("$urlBase", "").split("/").toMap()
+    }
+
+    override fun doPost(req: HttpServletRequest, res: HttpServletResponse) {
+        res.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED)
+    }
+
+    override fun doDelete(req: HttpServletRequest, res: HttpServletResponse) {
+        res.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED)
     }
 }
 
