@@ -1,9 +1,11 @@
 package shopscraper
 
+import API.ScraperSelector
 import com.google.gson.Gson
 import exceptions.IncorrectNumberOfParams
 import repository.RepositoryConnection
 import repository.RepositoryManager
+import worker.InfoRetriever
 import javax.servlet.annotation.WebServlet
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
@@ -19,6 +21,14 @@ class ScraperController : HttpServlet() {
 
     fun getParamsAsMap(uri: String, urlBase: String): Map<String, String> {
         return uri.replaceFirst("$urlBase", "").split("/").toMap()
+    }
+
+    override fun doPut(req: HttpServletRequest, res: HttpServletResponse) {
+        val repo = RepositoryManager(RepositoryConnection("scraper.db"))
+        val params = getParamsAsMap(req.getRequestURI(), "/web/")
+        val infoRetriever = InfoRetriever(repo, ScraperSelector())
+        infoRetriever.updateProductDataForPage(params.get("scrap")!!, params.get("type") ?: "")
+        res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!)))
     }
 
     override fun doPost(req: HttpServletRequest, res: HttpServletResponse) {

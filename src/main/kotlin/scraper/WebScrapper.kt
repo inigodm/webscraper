@@ -11,9 +11,9 @@ import org.jsoup.nodes.Element
 
 
 abstract class WebScrapper(var root: String) {
-    fun findData(): Map<String, List<ItemData>> {
+    fun findData(type: String): Map<String, List<ItemData>> {
         val doc = getHtmlDocument(root)
-        return findInfo(doc)
+        return findInfo(doc, type)
     }
 
     fun getHtmlDocument(url: String): Document = throwsServiceException {
@@ -29,38 +29,43 @@ abstract class WebScrapper(var root: String) {
         return@throwsServiceException Jsoup.parse(page.asXml());
     }
 
-    protected abstract fun findInfo(doc: Document, retard: Int = 4): Map<String, List<ItemData>>
+    protected abstract fun findInfo(doc: Document, type: String = ""): Map<String, List<ItemData>>
 }
 
-class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/oportunidades/") : WebScrapper(root) {
+class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/oportunidades/", val retard: Int = 4) : WebScrapper(root) {
 
     val response = mutableMapOf<String, MutableList<ItemData>>()
 
-    override fun findInfo(doc: Document, retard: Int) = runBlocking {
+    override fun findInfo(doc: Document, type: String) = runBlocking {
         doc.findCategories().map {
-            println("wait $retard secs")
-            delay(retard * 1000L)
-            println("GO!")
-            findProducts(it)
+            if (type.isEmpty() || it.title().equals(type, ignoreCase = true)) {
+                println("wait $retard secs")
+                delay(retard * 1000L)
+                println("GO!")
+                findProducts(it, type)
+            } else {
+                println("Skipping ${it.title()} we are searching for $type")
+            }
         }
         return@runBlocking response
     }
 
-    private fun findProducts(it: Element) {
-        var page = getHtmlDocument(getAbsoluteURL(it.href()))
+    private fun findProducts(it: Element, type: String) {
+        val page = getHtmlDocument(getAbsoluteURL(it.href()))
         page.products().map { putElement(page.category(), buildItemData(it)) }
-        followPagination(page)
+        followPagination(page, type)
     }
 
 
-    private fun followPagination(page: Document) {
+    private fun followPagination(page: Document, type: String) {
         val next = page.next()
         if (next.size > 0) {
-            findProducts(next.first())
+            findProducts(next.first(), type)
         }
     }
 
     private fun Element.href() = this.attributes().get("href")
+    private fun Element.title() = this.child(0)?.child(0)?.text() ?: "NO"
     private fun Document.category() = this.select(".lastBreadcrumb").text()
     private fun Document.products() = this.select(".listing-product ul li")!!
     private fun Document.next() = this.select(".pagination .next a")
