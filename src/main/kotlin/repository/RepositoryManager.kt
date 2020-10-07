@@ -1,13 +1,14 @@
 package repository
 
 import scraper.ItemData
+import java.time.ZoneOffset
 
 class RepositoryManager(var repo: RepositoryConnection) {
 
     fun saveProductData(itemData: ItemData) {
         repo.executePreparedStatement(
                 "insert into products (name, desc, price, extra, page, type, active, created_at)" +
-                        " values (?, ?, ?, ?, ?, ?, 1, ${System.currentTimeMillis()})",
+                        " values (?, ?, ?, ?, ?, ?, 1, ${java.time.LocalDate.now().atStartOfDay().toEpochSecond(ZoneOffset.UTC)})",
         itemData)
     }
 
