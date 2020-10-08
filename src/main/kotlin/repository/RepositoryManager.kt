@@ -7,18 +7,20 @@ import java.time.ZoneOffset
 class RepositoryManager(var repo: RepositoryConnection) {
 
     fun saveProductData(itemData: ItemData) {
-        if (existProduct(itemData)) {
-            updateProduct(itemData)
-        } else {
+        if (nonexitentProduct(itemData)) {
             insertProduct(itemData)
+        } else {
+            updateProduct(itemData)
         }
     }
 
     private fun insertProduct(itemData: ItemData) {
         println("Inserting " + itemData.name)
         repo.executePreparedStatement(
-                "insert into products (name, desc, price, extra, page, type, active, created_at)" +
-                        " values (?, ?, ?, ?, ?, ?, 1, ${LocalDate.now().atStartOfDay().toEpochSecond(ZoneOffset.UTC)})",
+                "insert into products (name, desc, price, extra, page, type, active, created_at, last_updated_at)" +
+                        " values (?, ?, ?, ?, ?, ?, 1, " +
+                        "${dateAsLong()}," +
+                        "${dateAsLong()})",
                 itemData)
     }
 
@@ -26,26 +28,28 @@ class RepositoryManager(var repo: RepositoryConnection) {
         println("Updating " + itemData.name)
         repo.executePreparedStatement(
                 "update products set name = ?, desc = ?, price = ?, extra = ?, page = ?, type = ?, " +
-                        "active = 1, created_at = ${LocalDate.now().atStartOfDay().toEpochSecond(ZoneOffset.UTC)}",
+                        "active = 1, last_updated_at = ${dateAsLong()}",
                 itemData)
     }
 
-    fun existProduct(itemData: ItemData) : Boolean {
+    fun nonexitentProduct(itemData: ItemData) : Boolean {
         return repo.findProducts("Select * from products where " +
-                "page = '${itemData.page}' " +
-                "and name = '${itemData.name}' " +
+                "page = '${itemData.page.replace('\'', '"')}' " +
+                "and name = '${itemData.name.replace('\'', '"')}' " +
                 "and price =${itemData.price} " +
-                "and desc = '${itemData.desc}'").isNullOrEmpty()
+                "and desc = '${itemData.desc.replace('\'', '"')}'").isNullOrEmpty()
 
     }
 
     fun forgetProductsFromPageAndType(page: String, type: String = "") {
         val sql = when (type.isBlank()) {
-            true -> "update products set active=false where page = '$page'"
-            false -> "update products set active=false where page = '$page' and type = '$type'"
+            true -> "update products set active=false, last_updated_at = ${dateAsLong()} where page = '$page'"
+            false -> "update products set active=false , last_updated_at = ${dateAsLong()} where page = '$page' and type = '$type'"
         }
         repo.executeCommand(sql)
     }
+
+    private fun dateAsLong() = LocalDate.now().atStartOfDay().toEpochSecond(ZoneOffset.UTC)
 
     fun findProductsOf(page: String = ""): List<ItemData> {
         return repo.findProducts("Select * from products where page = '$page'") ?: listOf()

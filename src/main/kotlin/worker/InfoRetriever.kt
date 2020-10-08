@@ -29,7 +29,7 @@ fun main(args: Array<String>) {
     conn.connect()
     conn.executeCommand(TABLE_PRODUCTS_CREATE)
     val infoRetriever = InfoRetriever(RepositoryManager(conn), ScraperSelector())
-    infoRetriever.updateProductDataForPage("ldlc", "Disco SSD")
+    infoRetriever.updateProductDataForPage("ldlc", "any")
     conn.close()
 }
 

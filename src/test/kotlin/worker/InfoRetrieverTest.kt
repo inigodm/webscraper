@@ -33,9 +33,9 @@ class InfoRetrieverTest {
     fun `should be able to call to a web page and retreive all info`() {
         val response = randomResponse()
         every { scraperSelector.findScraperFor("test")} returns ldlcOportunitiesScrapper
-        every { ldlcOportunitiesScrapper.findData() } returns response
+        every { ldlcOportunitiesScrapper.findData(any()) } returns response
 
-        val info = sut.retrieveAllInfoFrom("test")
+        val info = sut.retrieveAllInfoFrom("test", "any")
 
         assertThat(info).isSameAs(response)
     }

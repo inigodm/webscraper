@@ -17,15 +17,28 @@ class RepositoryManagerTest{
     }
 
     @Test
-    fun `save the product`() {
+    fun `inserts the product`() {
         var itemData = randomDataItem()
         every { connection.executePreparedStatement(any(), any()) } returns Unit
+        every { connection.findProducts(any()) } returns emptyList()
 
         repo.saveProductData(itemData)
 
         verify {
-            connection.executePreparedStatement(
-                    any(), eq(itemData))
+            connection.executePreparedStatement(any(), eq(itemData))
+        }
+    }
+
+    @Test
+    fun `updates the product`() {
+        var itemData = randomDataItem()
+        every { connection.executePreparedStatement(any(), any()) } returns Unit
+        every { connection.findProducts(any()) } returns listOf(randomDataItem())
+
+        repo.saveProductData(itemData)
+
+        verify {
+            connection.executePreparedStatement(any(), eq(itemData))
         }
     }
 }

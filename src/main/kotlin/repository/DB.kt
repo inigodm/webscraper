@@ -23,7 +23,8 @@ var TABLE_PRODUCTS_CREATE = """CREATE TABLE IF NOT EXISTS products
                         page TEXT,
                         type TEXT,
                         active integer,
-                        created_at integer)"""
+                        created_at integer,
+                        last_updated_at)"""
 var TEST_INSERT = """insert into products (name, desc, price)
          values ('name', 'description', 21500)"""
 
@@ -50,6 +51,7 @@ class RepositoryConnection(dataBaseFile: String) {
     }
 
     fun findProducts(query: String) : List<ItemData>? {
+        println("Executing: $query")
         DriverManager.getConnection(URL).use { conn ->
             val resultSet = conn?.prepareStatement(query)?.executeQuery()
             val gson = Gson()

@@ -1,8 +1,11 @@
 package scraper
 
 import com.gargoylesoftware.htmlunit.BrowserVersion
+import com.gargoylesoftware.htmlunit.SilentCssErrorHandler
 import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html.HtmlPage
+import com.gargoylesoftware.htmlunit.javascript.JavaScriptErrorListener
+import com.gargoylesoftware.htmlunit.javascript.SilentJavaScriptErrorListener
 import common.throwsServiceException
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
@@ -24,6 +27,8 @@ abstract class WebScrapper(var root: String) {
         val page: HtmlPage = client.getPage(url)
         client.options.isCssEnabled = false
         client.options.isDownloadImages = false
+        client.cssErrorHandler = SilentCssErrorHandler()
+        client.javaScriptErrorListener = SilentJavaScriptErrorListener()
         client.getOptions().setJavaScriptEnabled(true)
         client.waitForBackgroundJavaScript(5000)
         return@throwsServiceException Jsoup.parse(page.asXml());
@@ -38,7 +43,7 @@ class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/
 
     override fun findInfo(doc: Document, type: String) = runBlocking {
         doc.findCategories().map {
-            if (type.isEmpty() || it.title().equals(type, ignoreCase = true)) {
+            if (type.equals("any") || it.title().equals(type, ignoreCase = true)) {
                 println("wait $retard secs")
                 delay(retard * 1000L)
                 println("GO!")
@@ -105,3 +110,5 @@ class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/
 suspend fun <A, B> Iterable<A>.pmap(f: suspend (A) -> B): List<B> = coroutineScope {
     map { async(Dispatchers.IO) { f(it) } }.map { it.await() }
 }
+
+
