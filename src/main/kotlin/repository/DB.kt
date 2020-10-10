@@ -1,7 +1,6 @@
 package repository
 
 import com.google.gson.Gson
-import repository.ItemData
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.sql.Connection

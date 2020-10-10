@@ -4,7 +4,6 @@ import com.gargoylesoftware.htmlunit.BrowserVersion
 import com.gargoylesoftware.htmlunit.SilentCssErrorHandler
 import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html.HtmlPage
-import com.gargoylesoftware.htmlunit.javascript.JavaScriptErrorListener
 import com.gargoylesoftware.htmlunit.javascript.SilentJavaScriptErrorListener
 import common.throwsServiceException
 import kotlinx.coroutines.*
