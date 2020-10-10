@@ -4,7 +4,7 @@ import API.ScraperSelector
 import repository.RepositoryConnection
 import repository.RepositoryManager
 import repository.TABLE_PRODUCTS_CREATE
-import scraper.ItemData
+import repository.ItemData
 
 class InfoRetriever(val repo: RepositoryManager, val scraperSelector: ScraperSelector) {
     fun retrieveAllInfoFrom(page: String, type: String) = scraperSelector.findScraperFor(page).findData(type)

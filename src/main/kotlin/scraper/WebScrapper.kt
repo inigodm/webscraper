@@ -11,6 +11,7 @@ import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import repository.ItemData
 
 
 abstract class WebScrapper(var root: String) {

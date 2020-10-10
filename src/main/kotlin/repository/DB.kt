@@ -1,7 +1,7 @@
 package repository
 
 import com.google.gson.Gson
-import scraper.ItemData
+import repository.ItemData
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.sql.Connection
@@ -58,12 +58,14 @@ class RepositoryConnection(dataBaseFile: String) {
             val res = mutableListOf<ItemData>()
             while (resultSet!!.next()) {
                 with(resultSet) {
-                    res.add(ItemData(name = resultSet.getString("name"),
+                    res.add(
+                        ItemData(name = resultSet.getString("name"),
                             desc = resultSet.getString("desc"),
                             price = resultSet.getInt("price"),
                             extra = gson.fromJson(resultSet.getString("extra"), MapParametrizedType()),
                             page = resultSet.getString("page"),
-                            type = resultSet.getString("type")))
+                            type = resultSet.getString("type"))
+                    )
                 }
             }
             return res

@@ -1,6 +1,6 @@
 package repository
 
-import scraper.ItemData
+import repository.ItemData
 import java.time.LocalDate
 import java.time.ZoneOffset
 

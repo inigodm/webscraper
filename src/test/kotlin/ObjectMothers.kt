@@ -1,5 +1,5 @@
 import com.github.javafaker.Faker
-import scraper.ItemData
+import repository.ItemData
 
 fun randomDataItem(): ItemData {
     var faker = Faker()
