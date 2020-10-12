@@ -94,7 +94,7 @@ class RepositoryConnection(dataBaseFile: String) {
         if (!isConnected()){
             connect()
         }
-        //logProductInsert(statement, data)
+        logProductInsert(statement, data)
         var statement = conn!!.prepareStatement(statement)
         statement.use {
             statement.setString(1, data.name)
@@ -102,7 +102,25 @@ class RepositoryConnection(dataBaseFile: String) {
             statement.setInt(3, data.price)
             statement.setString(4, Gson().toJson(data.extra))
             statement.setString(5, data.page)
-            statement.setString(6, data.type)
+            statement.setString(6, hashType(data.type))
+            var res = statement.executeUpdate()
+            println("OK -> $res")
+        }
+    }
+
+    fun executeUpdate(sql: String, data: ItemData) {
+        if (!isConnected()){
+            connect()
+        }
+        println(sql)
+        var statement = conn!!.prepareStatement(sql)
+        statement.use {
+            statement.setInt(1, data.price)
+            statement.setString(2, Gson().toJson(data.extra))
+            statement.setString(3, data.page)
+            statement.setString(4, hashType(data.type))
+            statement.setString(5, data.name)
+            statement.setString(6, data.desc)
             var res = statement.executeUpdate()
             println("OK -> $res")
         }
@@ -113,9 +131,8 @@ class RepositoryConnection(dataBaseFile: String) {
         sql = sql.replaceFirst("?", "'${data.desc}'" ?: "")
         sql = sql.replaceFirst("?", data.price.toString())
         sql = sql.replaceFirst("?", "'${Gson().toJson(data.extra)}'")
-        sql = sql.replaceFirst("?", "'${data.desc}'" ?: "")
         sql = sql.replaceFirst("?", "'${data.page}'")
-        sql = sql.replaceFirst("?", "'${data.type}'" ?: "")
+        sql = sql.replaceFirst("?", "'${hashType(data.type)}'" ?: "")
         println(sql)
     }
 
@@ -126,6 +143,39 @@ class RepositoryConnection(dataBaseFile: String) {
     }
 
     private fun isConnected() = conn != null && !conn!!.isClosed()
+
+    fun findBy(sql: String, vars: List<String>): List<ItemData> {
+        println("Executing: $sql")
+        DriverManager.getConnection(URL).use { conn ->
+            val statement = conn?.prepareStatement(sql)!!
+            val gson = Gson()
+            val res = mutableListOf<ItemData>()
+            var i = 1
+            statement.use {
+                vars.forEach{
+                    statement.setString(i, it)
+                    i++
+                }
+                val resultSet = statement.executeQuery()
+                while (resultSet.next()) {
+                    with(resultSet) {
+                        res.add(
+                            ItemData(name = resultSet.getString("name"),
+                                desc = resultSet.getString("desc"),
+                                price = resultSet.getInt("price"),
+                                extra = gson.fromJson(resultSet.getString("extra"), MapParametrizedType()),
+                                page = resultSet.getString("page"),
+                                type = resultSet.getString("type"))
+                        )
+                    }
+                }
+            }
+            return res
+        }
+    }
+    private fun hashType(type: String): String {
+        return type.replace("[^0-9^a-z^A-Z]".toRegex(), "").toLowerCase()
+    }
 }
 
 fun main(args: Array<String>) {

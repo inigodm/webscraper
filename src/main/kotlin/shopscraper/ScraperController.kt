@@ -16,7 +16,7 @@ class ScraperController : HttpServlet() {
     override fun doGet(req: HttpServletRequest, res: HttpServletResponse) {
         val repo = RepositoryManager(RepositoryConnection("scraper.db"))
         val params = getParamsAsMap(req.getRequestURI(), "/web/")
-        res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!)))
+        res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!, params.get("type") ?: "")))
     }
 
     fun getParamsAsMap(uri: String, urlBase: String): Map<String, String> {
