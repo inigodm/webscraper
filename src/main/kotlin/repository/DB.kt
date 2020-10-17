@@ -113,7 +113,6 @@ class RepositoryConnection(dataBaseFile: String) {
         if (!isConnected()){
             connect()
         }
-        println(sql)
         val statement = conn!!.prepareStatement(sql)
         statement.use {
             statement.setInt(1, data.price)

@@ -24,13 +24,13 @@ abstract class WebScrapper(var root: String) {
         println("=====================================================================================================")
         println("Going to page $url")
         println("=====================================================================================================")
-        val page: HtmlPage = client.getPage(url)
         client.options.isCssEnabled = false
         client.options.isDownloadImages = false
         client.cssErrorHandler = SilentCssErrorHandler()
         client.javaScriptErrorListener = SilentJavaScriptErrorListener()
         client.getOptions().setJavaScriptEnabled(true)
         client.waitForBackgroundJavaScript(5000)
+        val page: HtmlPage = client.getPage(url)
         return@throwsServiceException Jsoup.parse(page.asXml());
     }
 
