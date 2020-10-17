@@ -49,7 +49,7 @@ class InfoRetrieverTest {
         conn.executeCommand(TABLE_PRODUCTS_CREATE)
         sut = InfoRetriever(RepositoryManager(conn), scraperSelector)
 
-        sut.save("test", response)
+        sut.save(response)
 
         assertThat {  }
     }

@@ -10,15 +10,10 @@ class InfoRetriever(val repo: RepositoryManager, val scraperSelector: ScraperSel
     fun retrieveAllInfoFrom(page: String, type: String) = scraperSelector.findScraperFor(page).findData(type)
     fun updateProductDataForPage(page: String, type: String) {
         repo.forgetProductsFromPageAndType(page, type)
-        save(page, retrieveAllInfoFrom(page, type))
+        save(retrieveAllInfoFrom(page, type))
     }
-    fun save(page: String, response: Map<String, List<ItemData>>) {
-        response.map { (k, v) ->
-            v.forEach{
-                it.type = k
-                it.page = page
-                repo.saveProductData(it)
-            }
+    fun save(response: Map<String, List<ItemData>>) {
+        response.map { (k, v) ->  v.forEach{ repo.saveProductData(it) }
         }
     }
 }
@@ -29,7 +24,7 @@ fun main(args: Array<String>) {
     conn.connect()
     conn.executeCommand(TABLE_PRODUCTS_CREATE)
     val infoRetriever = InfoRetriever(RepositoryManager(conn), ScraperSelector())
-    infoRetriever.updateProductDataForPage("ldlc", "any")
+    infoRetriever.updateProductDataForPage("ldlc", "impresora")
     conn.close()
 }
 

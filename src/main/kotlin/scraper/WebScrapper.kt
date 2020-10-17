@@ -57,7 +57,7 @@ class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/
 
     private fun findProducts(it: Element, type: String) {
         val page = getHtmlDocument(getAbsoluteURL(it.href()))
-        page.products().map { putElement(page.category(), buildItemData(it)) }
+        page.products().map { putElement(page.category(), buildItemData(it, page.category())) }
         followPagination(page, type)
     }
 
@@ -90,18 +90,21 @@ class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/
         response.get(key)!!.add(item)
     }
 
-    private fun buildItemData(it: Element): ItemData {
-        var metadata = mapOf<String, Any>(
+    private fun buildItemData(it: Element, type: String): ItemData {
+        val metadata = mapOf<String, Any>(
             "previous" to "N/A",
             "pic" to it.select(".pic a img").attr("src")
         )
         val regex = "[^\\d]".toRegex()
         return ItemData(
-            it.select(".title-3")?.text() ?: "N/A",
-            it.select(".desc")?.text() ?: "N/A",
-                "0${regex.replace(it.select(".price .price").text(), "")}"
+            name =it.select(".title-3")?.text() ?: "N/A",
+            desc =it.select(".desc")?.text() ?: "N/A",
+            price = "0${regex.replace(it.select(".price .price").text(), "")}"
                     .toInt(),
-            metadata
+            extra = metadata,
+            type = type.replace(" ", ""),
+            page = "ldlc",
+            url = "https://www.ldlc.com${it.select(".pic a").attr("href")}"
         )
     }
 
