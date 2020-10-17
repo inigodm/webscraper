@@ -4,27 +4,24 @@ import repository.ItemData
 fun randomDataItem(): ItemData {
     val faker = Faker()
     return ItemData(
-        faker.ancient().god(),
-        faker.rickAndMorty().quote(),
-        faker.number().numberBetween(0, 1000000),
-        mapOf(
+        name = faker.ancient().god(),
+        desc = faker.rickAndMorty().quote(),
+        price = faker.number().numberBetween(0, 1000000),
+        extra = mapOf(
             faker.backToTheFuture().quote()
                     to faker.funnyName().name()
         ),
-        faker.internet().url()
+        type = faker.princessBride().character(),
+        page = faker.gameOfThrones().character(),
+        url = faker.internet().url()
     )
 }
 
-fun randomResponse(): MutableMap<String, List<ItemData>> {
+fun randomResponse(): List<ItemData> {
     val faker = Faker()
-    val res = mutableMapOf<String, List<ItemData>>()
+    val res = mutableListOf<ItemData>()
     for (numCats in 0 until faker.number().numberBetween(0, 10)) {
-        val category = faker.artist().name()
-        val products = mutableListOf<ItemData>()
-        for (numProds in 0 until faker.number().numberBetween(0, 10)) {
-            products.add(randomDataItem())
-        }
-        res.put(category, products)
+        res.add(randomDataItem())
     }
     return res
 }

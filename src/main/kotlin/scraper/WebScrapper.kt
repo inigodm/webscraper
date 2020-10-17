@@ -14,7 +14,7 @@ import repository.ItemData
 
 
 abstract class WebScrapper(var root: String) {
-    fun findData(type: String): Map<String, List<ItemData>> {
+    fun findData(type: String): List<ItemData> {
         val doc = getHtmlDocument(root)
         return findInfo(doc, type)
     }
@@ -34,12 +34,12 @@ abstract class WebScrapper(var root: String) {
         return@throwsServiceException Jsoup.parse(page.asXml());
     }
 
-    protected abstract fun findInfo(doc: Document, type: String = ""): Map<String, List<ItemData>>
+    protected abstract fun findInfo(doc: Document, type: String = ""): List<ItemData>
 }
 
 class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/oportunidades/", val retard: Int = 4) : WebScrapper(root) {
 
-    val response = mutableMapOf<String, MutableList<ItemData>>()
+    val response = mutableListOf<ItemData>()
 
     override fun findInfo(doc: Document, type: String) = runBlocking {
         doc.findCategories().map {
@@ -57,7 +57,7 @@ class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/
 
     private fun findProducts(it: Element, type: String) {
         val page = getHtmlDocument(getAbsoluteURL(it.href()))
-        page.products().map { putElement(page.category(), buildItemData(it, page.category())) }
+        page.products().map { response.add(buildItemData(it, page.category())) }
         followPagination(page, type)
     }
 
@@ -81,13 +81,6 @@ class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/
             return "https://www.ldlc.com$url"
         }
         return url
-    }
-
-    private fun putElement(key: String, item : ItemData) {
-        if (!response.containsKey(key)) {
-            response.put(key, mutableListOf())
-        }
-        response.get(key)!!.add(item)
     }
 
     private fun buildItemData(it: Element, type: String): ItemData {

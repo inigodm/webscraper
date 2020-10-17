@@ -12,9 +12,8 @@ class InfoRetriever(val repo: RepositoryManager, val scraperSelector: ScraperSel
         repo.forgetProductsFromPageAndType(page, type)
         save(retrieveAllInfoFrom(page, type))
     }
-    fun save(response: Map<String, List<ItemData>>) {
-        response.map { (k, v) ->  v.forEach{ repo.saveProductData(it) }
-        }
+    fun save(response: List<ItemData>) {
+        response.forEach { repo.saveProductData(it) }
     }
 }
 
