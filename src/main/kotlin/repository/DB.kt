@@ -21,6 +21,7 @@ var TABLE_PRODUCTS_CREATE = """CREATE TABLE IF NOT EXISTS products
                         picture BLOB,
                         page TEXT,
                         type TEXT,
+                        url TEXT,
                         active integer,
                         created_at integer,
                         last_updated_at)"""
@@ -95,7 +96,7 @@ class RepositoryConnection(dataBaseFile: String) {
             connect()
         }
         logProductInsert(statement, data)
-        var statement = conn!!.prepareStatement(statement)
+        val statement = conn!!.prepareStatement(statement)
         statement.use {
             statement.setString(1, data.name)
             statement.setString(2, data.desc)
@@ -103,8 +104,8 @@ class RepositoryConnection(dataBaseFile: String) {
             statement.setString(4, Gson().toJson(data.extra))
             statement.setString(5, data.page)
             statement.setString(6, hashType(data.type))
-            var res = statement.executeUpdate()
-            println("OK -> $res")
+            statement.setString(7, data.url)
+            println("OK -> ${statement.executeUpdate()}")
         }
     }
 
@@ -113,7 +114,7 @@ class RepositoryConnection(dataBaseFile: String) {
             connect()
         }
         println(sql)
-        var statement = conn!!.prepareStatement(sql)
+        val statement = conn!!.prepareStatement(sql)
         statement.use {
             statement.setInt(1, data.price)
             statement.setString(2, Gson().toJson(data.extra))
@@ -121,8 +122,7 @@ class RepositoryConnection(dataBaseFile: String) {
             statement.setString(4, hashType(data.type))
             statement.setString(5, data.name)
             statement.setString(6, data.desc)
-            var res = statement.executeUpdate()
-            println("OK -> $res")
+            println("OK -> ${statement.executeUpdate()}")
         }
     }
 
@@ -133,6 +133,7 @@ class RepositoryConnection(dataBaseFile: String) {
         sql = sql.replaceFirst("?", "'${Gson().toJson(data.extra)}'")
         sql = sql.replaceFirst("?", "'${data.page}'")
         sql = sql.replaceFirst("?", "'${hashType(data.type)}'" ?: "")
+        sql = sql.replaceFirst("?", "'${data.url}'" ?: "")
         println(sql)
     }
 
@@ -165,7 +166,8 @@ class RepositoryConnection(dataBaseFile: String) {
                                 price = resultSet.getInt("price"),
                                 extra = gson.fromJson(resultSet.getString("extra"), MapParametrizedType()),
                                 page = resultSet.getString("page"),
-                                type = resultSet.getString("type"))
+                                type = resultSet.getString("type"),
+                                url = resultSet.getString("url"))
                         )
                     }
                 }

@@ -20,7 +20,7 @@ class RepositoryManagerTest{
     fun `inserts the product`() {
         var itemData = randomDataItem()
         every { connection.executePreparedStatement(any(), any()) } returns Unit
-        every { connection.findProducts(any()) } returns emptyList()
+        every { connection.findBy(any(), any()) } returns emptyList()
 
         repo.saveProductData(itemData)
 
@@ -32,13 +32,13 @@ class RepositoryManagerTest{
     @Test
     fun `updates the product`() {
         var itemData = randomDataItem()
-        every { connection.executePreparedStatement(any(), any()) } returns Unit
-        every { connection.findProducts(any()) } returns listOf(randomDataItem())
+        every { connection.executeUpdate(any(), any()) } returns Unit
+        every { connection.findBy(any(), any()) } returns listOf(randomDataItem())
 
         repo.saveProductData(itemData)
 
         verify {
-            connection.executePreparedStatement(any(), eq(itemData))
+            connection.executeUpdate(any(), eq(itemData))
         }
     }
 }

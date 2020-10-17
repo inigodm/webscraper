@@ -19,10 +19,10 @@ class RepositoryManager(var repo: RepositoryConnection) {
             return
         }
         repo.executePreparedStatement(
-                "insert into products (name, desc, price, extra, page, type, active, created_at, last_updated_at)" +
+                "insert into products (name, desc, price, extra, page, type, active, created_at, last_updated_at, url)" +
                         " values (?, ?, ?, ?, ?, ?, 1, " +
                         "${dateAsLong()}," +
-                        "${dateAsLong()})",
+                        "${dateAsLong()}, ?)",
                 itemData)
     }
 
@@ -69,6 +69,6 @@ fun main(args: Array<String>) {
     conn.connect()
     conn.executeCommand(TABLE_PRODUCTS_CREATE)
     val infoRetriever = RepositoryManager(conn)
-    println(infoRetriever.findProductsOf("ldlc", "Memoria PC"))
+    println(infoRetriever.findProductsOf("ldlc", "any"))
     conn.close()
 }
