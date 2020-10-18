@@ -24,7 +24,10 @@ var TABLE_PRODUCTS_CREATE = """CREATE TABLE IF NOT EXISTS products
                         url TEXT,
                         active integer,
                         created_at integer,
-                        last_updated_at)"""
+                        last_updated_at);
+                        CREATE INDEX index_name 
+                        ON products(name);
+                        """
 var TEST_INSERT = """insert into products (name, desc, price)
          values ('name', 'description', 21500)"""
 
@@ -50,44 +53,12 @@ class RepositoryConnection(dataBaseFile: String) {
         }
     }
 
-    fun findProducts(query: String) : List<ItemData>? {
-        println("Executing: $query")
-        DriverManager.getConnection(URL).use { conn ->
-            val resultSet = conn?.prepareStatement(query)?.executeQuery()
-            val gson = Gson()
-            val res = mutableListOf<ItemData>()
-            while (resultSet!!.next()) {
-                with(resultSet) {
-                    res.add(
-                        ItemData(name = resultSet.getString("name"),
-                            desc = resultSet.getString("desc"),
-                            price = resultSet.getInt("price"),
-                            extra = gson.fromJson(resultSet.getString("extra"), MapParametrizedType()),
-                            page = resultSet.getString("page"),
-                            type = resultSet.getString("type"))
-                    )
-                }
-            }
-            return res
-        }
-    }
-
-    fun <T> toArrayList(iterator: Iterator<T>?): List<T>? {
-        return StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)
-                .collect(Collectors.toCollection { ArrayList() })
-    }
-
-
     fun executeCommand(command: String) {
         if (!isConnected()){
             connect()
         }
-        println("Executing: $command")
-        var statement = conn!!.createStatement()
-        statement.use {
-            var res = statement.execute(command)
-            println("OK -> $res")
+        conn!!.createStatement().use {
+            println("OK -> ${it.execute(command)}")
         }
     }
 
@@ -96,16 +67,15 @@ class RepositoryConnection(dataBaseFile: String) {
             connect()
         }
         logProductInsert(statement, data)
-        val statement = conn!!.prepareStatement(statement)
-        statement.use {
-            statement.setString(1, data.name)
-            statement.setString(2, data.desc)
-            statement.setInt(3, data.price)
-            statement.setString(4, Gson().toJson(data.extra))
-            statement.setString(5, data.page)
-            statement.setString(6, hashType(data.type))
-            statement.setString(7, data.url)
-            println("OK -> ${statement.executeUpdate()}")
+        conn!!.prepareStatement(statement).use {
+            it.setString(1, data.name)
+            it.setString(2, data.desc)
+            it.setInt(3, data.price)
+            it.setString(4, Gson().toJson(data.extra))
+            it.setString(5, data.page)
+            it.setString(6, hashType(data.type))
+            it.setString(7, data.url)
+            println("OK -> ${it.executeUpdate()}")
         }
     }
 
@@ -113,15 +83,14 @@ class RepositoryConnection(dataBaseFile: String) {
         if (!isConnected()){
             connect()
         }
-        val statement = conn!!.prepareStatement(sql)
-        statement.use {
-            statement.setInt(1, data.price)
-            statement.setString(2, Gson().toJson(data.extra))
-            statement.setString(3, data.page)
-            statement.setString(4, hashType(data.type))
-            statement.setString(5, data.name)
-            statement.setString(6, data.desc)
-            println("OK -> ${statement.executeUpdate()}")
+        conn!!.prepareStatement(sql).use {
+            it.setInt(1, data.price)
+            it.setString(2, Gson().toJson(data.extra))
+            it.setString(3, data.page)
+            it.setString(4, hashType(data.type))
+            it.setString(5, data.name)
+            it.setString(6, data.desc)
+            println("OK -> ${it.executeUpdate()}")
         }
     }
 
@@ -145,7 +114,6 @@ class RepositoryConnection(dataBaseFile: String) {
     private fun isConnected() = conn != null && !conn!!.isClosed()
 
     fun findBy(sql: String, vars: List<String>): List<ItemData> {
-        println("Executing: $sql")
         DriverManager.getConnection(URL).use { conn ->
             val statement = conn?.prepareStatement(sql)!!
             val gson = Gson()
