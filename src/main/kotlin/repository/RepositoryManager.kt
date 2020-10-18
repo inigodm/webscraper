@@ -56,7 +56,34 @@ class RepositoryManager(var repo: RepositoryConnection) {
 
     private fun dateAsLong() = LocalDate.now().atStartOfDay().toEpochSecond(ZoneOffset.UTC)
 
-    fun findProductsOf(page: String = "", type: String = ""): List<ItemData> {
+    fun findProductsOf(page: String = "", type: String = "", query: String = ""): List<ItemData> {
+        return when (query.isBlank()) {
+            true -> findByPageAndPossiblyType(type, page)
+            false -> findByPageAndQueryAndMaybeType(type, page, query)
+        }
+    }
+
+    private fun findByPageAndQueryAndMaybeType(
+        type: String,
+        page: String,
+        query: String
+    ): List<ItemData> {
+        return when (type.isBlank()) {
+            true -> repo.findBy(
+                "Select * from products where page = ? and lower(name) like ?",
+                listOf(page, "%${query.toLowerCase()}%")
+            )
+            false -> repo.findBy(
+                "Select * from products where page = ? and type = ? and lower(name) like ?",
+                listOf(page, type, "%${query.toLowerCase()}%")
+            )
+        }
+    }
+
+    private fun findByPageAndPossiblyType(
+        type: String,
+        page: String
+    ): List<ItemData> {
         return when (type.isBlank()) {
             true -> repo.findBy("Select * from products where page = ?", listOf(page))
             false -> repo.findBy("Select * from products where page = ? and type = ?", listOf(page, type))
@@ -68,7 +95,7 @@ fun main(args: Array<String>) {
     var conn = RepositoryConnection("scraper.db")
     conn.connect()
     conn.executeCommand(TABLE_PRODUCTS_CREATE)
-    val infoRetriever = RepositoryManager(conn)
-    println(infoRetriever.findProductsOf("ldlc", "any"))
+    //val infoRetriever = RepositoryManager(conn)
+    //println(infoRetriever.findProductsOf("ldlc", "any"))
     conn.close()
 }
