@@ -89,6 +89,10 @@ class RepositoryManager(var repo: RepositoryConnection) {
             false -> repo.findBy("Select * from products where page = ? and type = ?", listOf(page, type))
         }
     }
+
+    fun findNewProductsIn(page: String): List<ItemData> {
+        return repo.findBy("SELECT * FROM products WHERE last_updated_at = created_at and page = ?", listOf(page))
+    }
 }
 
 fun main(args: Array<String>) {

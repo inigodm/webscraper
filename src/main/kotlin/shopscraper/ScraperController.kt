@@ -42,6 +42,36 @@ class ScraperController : HttpServlet() {
     }
 }
 
+@WebServlet(name = "ALERT", value = ["/alert/*"])
+class AlertController : HttpServlet() {
+    override fun doGet(req: HttpServletRequest, res: HttpServletResponse) {
+        val repo = RepositoryManager(RepositoryConnection("scraper.db"))
+        val params = getParamsAsMap(req.getRequestURI(), "/web/")
+        res.writer.write(Gson().toJson(repo.findNewProductsIn(params.get("alert")!!)))
+    }
+
+    fun getParamsAsMap(uri: String, urlBase: String): Map<String, String> {
+        return uri.replaceFirst("$urlBase", "").split("/").toMap()
+    }
+
+    override fun doPut(req: HttpServletRequest, res: HttpServletResponse) {
+        val repo = RepositoryManager(RepositoryConnection("scraper.db"))
+        val params = getParamsAsMap(req.getRequestURI(), "/web/")
+        val infoRetriever = InfoRetriever(repo, ScraperSelector())
+        infoRetriever.updateProductDataForPage(params.get("scrap")!!, params.get("type") ?: "")
+        res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!)))
+    }
+
+    override fun doPost(req: HttpServletRequest, res: HttpServletResponse) {
+        res.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED)
+    }
+
+    override fun doDelete(req: HttpServletRequest, res: HttpServletResponse) {
+        res.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED)
+    }
+}
+
+
 fun <T> List<T>.toMap(): MutableMap<T, T> {
     if (this.size % 2 > 0) throw IncorrectNumberOfParams.becauseMustBePair()
     var aux: T? = null
