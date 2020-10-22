@@ -6,11 +6,17 @@ import java.time.ZoneOffset
 class RepositoryManager(var repo: RepositoryConnection) {
 
     fun saveProductData(itemData: ItemData) {
-        if (nonexitentProduct(itemData)) {
+        val matchingItems = nonexitentProduct(itemData)
+        if (matchingItems.isEmpty()) {
             insertProduct(itemData)
         } else {
+            saveHistoricalData(itemData, matchingItems)
             updateProduct(itemData)
         }
+    }
+
+    private fun saveHistoricalData(itemData: ItemData, matchingItems: List<ItemData>) {
+        itemData.extra.put("previous", matchingItems[0].price.toString())
     }
 
     private fun insertProduct(itemData: ItemData) {
@@ -38,11 +44,11 @@ class RepositoryManager(var repo: RepositoryConnection) {
                 itemData)
     }
 
-    fun nonexitentProduct(itemData: ItemData) : Boolean {
+    fun nonexitentProduct(itemData: ItemData) : List<ItemData> {
         return repo.findBy("Select * from products where " +
                 "page = ? " +
                 " and name = ?" +
-                " and desc = ?", listOf(itemData.page, itemData.name, itemData.desc)).isNullOrEmpty()
+                " and desc = ?", listOf(itemData.page, itemData.name, itemData.desc))
 
     }
 

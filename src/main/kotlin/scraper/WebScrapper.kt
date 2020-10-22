@@ -84,7 +84,7 @@ class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/
     }
 
     private fun buildItemData(it: Element, type: String): ItemData {
-        val metadata = mapOf<String, Any>(
+        val metadata = mutableMapOf<String, Any>(
             "previous" to "N/A",
             "pic" to it.select(".pic a img").attr("src")
         )
