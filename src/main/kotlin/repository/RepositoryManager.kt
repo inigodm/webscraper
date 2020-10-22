@@ -96,8 +96,11 @@ class RepositoryManager(var repo: RepositoryConnection) {
         }
     }
 
-    fun findNewProductsIn(page: String): List<ItemData> {
-        return repo.findBy("SELECT * FROM products WHERE last_updated_at = created_at and page = ?", listOf(page))
+    fun findNewProductsIn(page: String, type: String): List<ItemData> {
+        return when(type.isBlank()){
+            true -> repo.findBy("SELECT * FROM products WHERE last_updated_at = created_at and page = ?", listOf(page))
+            false -> repo.findBy("SELECT * FROM products WHERE last_updated_at = created_at and page = ? and type = ?", listOf(page, type))
+        }
     }
 }
 

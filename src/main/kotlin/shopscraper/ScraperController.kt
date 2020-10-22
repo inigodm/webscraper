@@ -47,7 +47,7 @@ class AlertController : HttpServlet() {
     override fun doGet(req: HttpServletRequest, res: HttpServletResponse) {
         val repo = RepositoryManager(RepositoryConnection("scraper.db"))
         val params = getParamsAsMap(req.getRequestURI(), "/web/")
-        res.writer.write(Gson().toJson(repo.findNewProductsIn(params.get("alert")!!)))
+        res.writer.write(Gson().toJson(repo.findNewProductsIn(params.get("alert")!!, params.get("type")?: "")))
     }
 
     fun getParamsAsMap(uri: String, urlBase: String): Map<String, String> {
@@ -55,11 +55,7 @@ class AlertController : HttpServlet() {
     }
 
     override fun doPut(req: HttpServletRequest, res: HttpServletResponse) {
-        val repo = RepositoryManager(RepositoryConnection("scraper.db"))
-        val params = getParamsAsMap(req.getRequestURI(), "/web/")
-        val infoRetriever = InfoRetriever(repo, ScraperSelector())
-        infoRetriever.updateProductDataForPage(params.get("scrap")!!, params.get("type") ?: "")
-        res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!)))
+        res.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED)
     }
 
     override fun doPost(req: HttpServletRequest, res: HttpServletResponse) {
