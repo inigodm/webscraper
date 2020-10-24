@@ -47,6 +47,9 @@ class RepositoryConnection(dataBaseFile: String) {
                 val meta = conn!!.metaData
                 println("The driver name is " + meta.driverName)
                 println("A new database has been created.")
+                conn!!.createStatement().use {
+                    println("OK -> ${it.execute(TABLE_PRODUCTS_CREATE)}")
+                }
             }
         } catch (e: SQLException) {
             println(e.message)
