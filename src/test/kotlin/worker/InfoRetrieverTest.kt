@@ -39,18 +39,4 @@ class InfoRetrieverTest {
 
         assertThat(info).isSameAs(response)
     }
-
-    @Test
-    fun `should be able to save all info in a repository`() {
-        val response = randomResponse()
-        every { repositoryManager.saveProductData(any()) }
-        var conn = RepositoryConnection("test.db")
-        conn.connect()
-        conn.executeCommand(TABLE_PRODUCTS_CREATE)
-        sut = InfoRetriever(RepositoryManager(conn), scraperSelector)
-
-        sut.save(response)
-
-        assertThat {  }
-    }
 }
