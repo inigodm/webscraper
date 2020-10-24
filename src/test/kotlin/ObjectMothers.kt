@@ -7,7 +7,7 @@ fun randomDataItem(): ItemData {
         name = faker.ancient().god(),
         desc = faker.rickAndMorty().quote(),
         price = faker.number().numberBetween(0, 1000000),
-        extra = mapOf(
+        extra = mutableMapOf(
             faker.backToTheFuture().quote()
                     to faker.funnyName().name()
         ),
