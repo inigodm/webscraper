@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse
 @WebServlet(name = "SCRAPER", value = ["/scrap/*"])
 class ScraperController : HttpServlet() {
     override fun doGet(req: HttpServletRequest, res: HttpServletResponse) {
-        val repo = RepositoryManager(RepositoryConnection("scraper.db"))
+        val repo = RepositoryManager(RepositoryConnection("/home/tomcat7/scraper.db"))
         val params = getParamsAsMap(req.getRequestURI(), "/web/")
         res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!,
             params.get("type") ?: "",
