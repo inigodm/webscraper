@@ -10,7 +10,7 @@ import java.util.*
 import java.util.stream.Collectors
 import java.util.stream.StreamSupport
 
-val PATH = "/home/inigo/projects/ShopScraper"
+val PATH = "/home/inigo/shopscraperdb"
 
 var TABLE_PRODUCTS_CREATE = """CREATE TABLE IF NOT EXISTS products
                         (id integer PRIMARY KEY,
