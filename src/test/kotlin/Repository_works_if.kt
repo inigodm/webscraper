@@ -3,8 +3,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import repository.RepositoryConnection
-import repository.RepositoryManager
+import inigo.repository.RepositoryConnection
+import inigo.repository.RepositoryManager
 
 class RepositoryManagerTest{
     lateinit var connection : RepositoryConnection

@@ -1,7 +1,7 @@
-import API.ScraperSelector
+import inigo.API.ScraperSelector
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
-import scraper.LDLCOportunitiesScrapper
+import inigo.scraper.LDLCOportunitiesScrapper
 
 class APITest{
     lateinit var scraperSelector: ScraperSelector

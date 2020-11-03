@@ -1,11 +1,11 @@
-package shopscraper
+package inigo.shopscraper
 
-import API.ScraperSelector
+import inigo.API.ScraperSelector
 import com.google.gson.Gson
-import exceptions.IncorrectNumberOfParams
-import repository.RepositoryConnection
-import repository.RepositoryManager
-import worker.InfoRetriever
+import inigo.exceptions.IncorrectNumberOfParams
+import inigo.repository.RepositoryConnection
+import inigo.repository.RepositoryManager
+import inigo.worker.InfoRetriever
 import javax.servlet.annotation.WebServlet
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest

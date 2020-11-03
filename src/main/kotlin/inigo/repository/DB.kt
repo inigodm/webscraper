@@ -1,16 +1,15 @@
-package repository
+package inigo.repository
 
 import com.google.gson.Gson
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
-import java.util.*
-import java.util.stream.Collectors
-import java.util.stream.StreamSupport
 
-val PATH = "/home/inigo/shopscraperdb"
+val PATH = "/home/inigo/projects/ShopScraper"
 
 var TABLE_PRODUCTS_CREATE = """CREATE TABLE IF NOT EXISTS products
                         (id integer PRIMARY KEY,
@@ -31,7 +30,7 @@ var TABLE_PRODUCTS_CREATE = """CREATE TABLE IF NOT EXISTS products
 var TEST_INSERT = """insert into products (name, desc, price)
          values ('name', 'description', 21500)"""
 
-class RepositoryConnection(dataBaseFile: String) {
+class RepositoryConnection(dataBaseFile: String, var logger: Logger = LoggerFactory.getLogger(RepositoryConnection::class.java)) {
     val DB_PATH = "jdbc:sqlite:$PATH/sqlite/"
     var conn: Connection? = null
     val URL : String = "$DB_PATH$dataBaseFile"
@@ -45,14 +44,14 @@ class RepositoryConnection(dataBaseFile: String) {
             conn = DriverManager.getConnection(URL)
             if (conn != null) {
                 val meta = conn!!.metaData
-                println("The driver name is " + meta.driverName)
-                println("A new database has been created.")
+                logger.warn("The driver name is " + meta.driverName)
+                logger.warn("A new database has been created.")
                 conn!!.createStatement().use {
                     println("OK -> ${it.execute(TABLE_PRODUCTS_CREATE)}")
                 }
             }
         } catch (e: SQLException) {
-            println(e.message)
+            logger.error(e.message, e)
         }
     }
 
@@ -61,7 +60,7 @@ class RepositoryConnection(dataBaseFile: String) {
             connect()
         }
         conn!!.createStatement().use {
-            println("OK -> ${it.execute(command)}")
+            logger.trace("OK -> ${it.execute(command)}")
         }
     }
 

@@ -1,10 +1,10 @@
-package worker
+package inigo.worker
 
-import API.ScraperSelector
-import repository.RepositoryConnection
-import repository.RepositoryManager
-import repository.TABLE_PRODUCTS_CREATE
-import repository.ItemData
+import inigo.API.ScraperSelector
+import inigo.repository.RepositoryConnection
+import inigo.repository.RepositoryManager
+import inigo.repository.TABLE_PRODUCTS_CREATE
+import inigo.repository.ItemData
 
 class InfoRetriever(val repo: RepositoryManager, val scraperSelector: ScraperSelector) {
     fun retrieveAllInfoFrom(page: String, type: String) = scraperSelector.findScraperFor(page).findData(type)

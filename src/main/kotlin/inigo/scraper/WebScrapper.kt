@@ -1,19 +1,21 @@
-package scraper
+package inigo.scraper
 
 import com.gargoylesoftware.htmlunit.BrowserVersion
 import com.gargoylesoftware.htmlunit.SilentCssErrorHandler
 import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html.HtmlPage
 import com.gargoylesoftware.htmlunit.javascript.SilentJavaScriptErrorListener
-import common.throwsServiceException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import inigo.common.throwsServiceException
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import repository.ItemData
+import inigo.repository.ItemData
 
 
-abstract class WebScrapper(var root: String) {
+abstract class WebScrapper(var root: String, var logger: Logger = LoggerFactory.getLogger(WebScrapper::class.java)) {
     fun findData(type: String): List<ItemData> {
         val doc = getHtmlDocument(root)
         return findInfo(doc, type)
@@ -21,9 +23,9 @@ abstract class WebScrapper(var root: String) {
 
     fun getHtmlDocument(url: String): Document = throwsServiceException {
         var client = WebClient(BrowserVersion.BEST_SUPPORTED)
-        println("=====================================================================================================")
-        println("Going to page $url")
-        println("=====================================================================================================")
+        logger.trace("=====================================================================================================")
+        logger.trace("Going to page $url")
+        logger.trace("=====================================================================================================")
         client.options.isCssEnabled = false
         client.options.isDownloadImages = false
         client.cssErrorHandler = SilentCssErrorHandler()
@@ -44,12 +46,12 @@ class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/
     override fun findInfo(doc: Document, type: String) = runBlocking {
         doc.findCategories().map {
             if (type.equals("any") || it.title().equals(type, ignoreCase = true)) {
-                println("wait $retard secs")
+                logger.trace("wait $retard secs")
                 delay(retard * 1000L)
-                println("GO!")
+                logger.trace("GO!")
                 findProducts(it, type)
             } else {
-                println("Skipping ${it.title()} we are searching for $type")
+                logger.trace("Skipping ${it.title()} we are searching for $type")
             }
         }
         return@runBlocking response

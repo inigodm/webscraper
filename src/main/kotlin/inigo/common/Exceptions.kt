@@ -1,4 +1,4 @@
-package common
+package inigo.common
 
 import java.io.IOException
 import java.net.MalformedURLException

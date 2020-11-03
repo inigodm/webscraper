@@ -1,8 +1,8 @@
-package API
+package inigo.API
 
-import exceptions.ScraperNotFound
-import scraper.LDLCOportunitiesScrapper
-import scraper.WebScrapper
+import inigo.exceptions.ScraperNotFound
+import inigo.scraper.LDLCOportunitiesScrapper
+import inigo.scraper.WebScrapper
 
 class ScraperSelector(var scrapers: Map<String, WebScrapper>
                       = mapOf<String, WebScrapper>("ldlc" to LDLCOportunitiesScrapper())){

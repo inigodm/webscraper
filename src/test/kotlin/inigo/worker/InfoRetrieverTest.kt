@@ -1,6 +1,6 @@
-package worker
+package inigo.worker
 
-import API.ScraperSelector
+import inigo.API.ScraperSelector
 import assertk.assertThat
 import assertk.assertions.isSameAs
 import io.mockk.every
@@ -8,10 +8,8 @@ import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import randomResponse
-import repository.RepositoryConnection
-import repository.RepositoryManager
-import repository.TABLE_PRODUCTS_CREATE
-import scraper.LDLCOportunitiesScrapper
+import inigo.repository.RepositoryManager
+import inigo.scraper.LDLCOportunitiesScrapper
 
 class InfoRetrieverTest {
     lateinit var ldlcOportunitiesScrapper: LDLCOportunitiesScrapper

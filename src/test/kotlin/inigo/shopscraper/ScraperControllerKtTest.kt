@@ -1,10 +1,10 @@
-package shopscraper
+package inigo.shopscraper
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
-import exceptions.IncorrectNumberOfParams
+import inigo.exceptions.IncorrectNumberOfParams
 import org.junit.jupiter.api.Test
 
 class ScraperControllerKtTest{

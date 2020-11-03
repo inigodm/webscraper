@@ -1,6 +1,6 @@
-package scraper
+package inigo.scraper
 
-import repository.ItemData
+import inigo.repository.ItemData
 
 interface Scraper {
     fun findData(): Map<String, List<ItemData>>

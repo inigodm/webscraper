@@ -1,5 +1,5 @@
 import com.github.javafaker.Faker
-import repository.ItemData
+import inigo.repository.ItemData
 
 fun randomDataItem(): ItemData {
     val faker = Faker()

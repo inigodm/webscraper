@@ -1,11 +1,11 @@
-package API
+package inigo.API
 
 import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import org.junit.jupiter.api.Test
-import scraper.LDLCOportunitiesScrapper
+import inigo.scraper.LDLCOportunitiesScrapper
 
 class ScraperSelectorTest {
 

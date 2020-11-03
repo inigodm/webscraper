@@ -1,9 +1,13 @@
-package repository
+package inigo.repository
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.ZoneOffset
 
-class RepositoryManager(var repo: RepositoryConnection) {
+class RepositoryManager(
+    var repo: RepositoryConnection,
+    var logger: Logger = LoggerFactory.getLogger(RepositoryManager::class.java)) {
 
     fun saveProductData(itemData: ItemData) {
         val matchingItems = nonexitentProduct(itemData)
@@ -20,7 +24,7 @@ class RepositoryManager(var repo: RepositoryConnection) {
     }
 
     private fun insertProduct(itemData: ItemData) {
-        println("Inserting " + itemData.name)
+        logger.trace("Inserting " + itemData.name)
         if (itemData.name.isEmpty() && itemData.desc.isEmpty()){
             return
         }
@@ -33,7 +37,7 @@ class RepositoryManager(var repo: RepositoryConnection) {
     }
 
     private fun updateProduct(itemData: ItemData) {
-        println("Updating " + itemData.name)
+        logger.trace("Updating " + itemData.name)
         repo.executeUpdate(
                 "update products set price = ?, extra = ?, " +
                         "active = 1, last_updated_at = ${dateAsLong()} " +
@@ -109,6 +113,6 @@ fun main(args: Array<String>) {
     conn.connect()
     conn.executeCommand(TABLE_PRODUCTS_CREATE)
     //val infoRetriever = RepositoryManager(conn)
-    //println(infoRetriever.findProductsOf("ldlc", "any"))
+    //logger.trace(infoRetriever.findProductsOf("ldlc", "any"))
     conn.close()
 }

@@ -30,6 +30,9 @@ dependencies {
     testCompile group: 'io.mockk', name: 'mockk', version: '1.10.0'
     testCompile 'com.willowtreeapps.assertk:assertk-jvm:0.21'
     testImplementation "com.github.javafaker:javafaker:1.0.2"
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
+    compile "org.slf4j:slf4j-api:1.7.30"
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
 }
 
