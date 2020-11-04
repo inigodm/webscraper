@@ -6,19 +6,24 @@ import inigo.exceptions.IncorrectNumberOfParams
 import inigo.repository.RepositoryConnection
 import inigo.repository.RepositoryManager
 import inigo.worker.InfoRetriever
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import javax.servlet.annotation.WebServlet
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @WebServlet(name = "SCRAPER", value = ["/scrap/*"])
-class ScraperController : HttpServlet() {
+class ScraperController(
+    var logger:Logger = LoggerFactory.getLogger(ScraperController::class.java)) : HttpServlet() {
     override fun doGet(req: HttpServletRequest, res: HttpServletResponse) {
+        logger.info("GET in scraper")
         val repo = RepositoryManager(RepositoryConnection("scraper.db"))
         val params = getParamsAsMap(req.getRequestURI(), "/web/")
         res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!,
             params.get("type") ?: "",
             params.get("query") ?: "")))
+        logger.info("END GET in scraper")
     }
 
     fun getParamsAsMap(uri: String, urlBase: String): Map<String, String> {
@@ -26,11 +31,13 @@ class ScraperController : HttpServlet() {
     }
 
     override fun doPut(req: HttpServletRequest, res: HttpServletResponse) {
+        logger.info("PUT in scraper")
         val repo = RepositoryManager(RepositoryConnection("scraper.db"))
         val params = getParamsAsMap(req.getRequestURI(), "/web/")
         val infoRetriever = InfoRetriever(repo, ScraperSelector())
         infoRetriever.updateProductDataForPage(params.get("scrap")!!, params.get("type") ?: "")
         res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!)))
+        logger.info("END PUT in scraper")
     }
 
     override fun doPost(req: HttpServletRequest, res: HttpServletResponse) {
@@ -43,11 +50,14 @@ class ScraperController : HttpServlet() {
 }
 
 @WebServlet(name = "ALERT", value = ["/alert/*"])
-class AlertController : HttpServlet() {
+class AlertController(
+    var logger:Logger = LoggerFactory.getLogger(AlertController::class.java)) : HttpServlet() {
     override fun doGet(req: HttpServletRequest, res: HttpServletResponse) {
+        logger.info("GET in alert")
         val repo = RepositoryManager(RepositoryConnection("scraper.db"))
         val params = getParamsAsMap(req.getRequestURI(), "/web/")
         res.writer.write(Gson().toJson(repo.findNewProductsIn(params.get("alert")!!, params.get("type")?: "")))
+        logger.info("END GET in alert")
     }
 
     fun getParamsAsMap(uri: String, urlBase: String): Map<String, String> {
