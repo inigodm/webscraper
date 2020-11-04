@@ -1,6 +1,7 @@
 package inigo.repository
 
 import com.google.gson.Gson
+import inigo.config.PropertiesReader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.lang.reflect.ParameterizedType
@@ -9,7 +10,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
 
-val PATH = "/home/inigo/projects/ShopScraper"
+val PATH = PropertiesReader.getProperties().getProperty("db_path")
 
 var TABLE_PRODUCTS_CREATE = """CREATE TABLE IF NOT EXISTS products
                         (id integer PRIMARY KEY,
