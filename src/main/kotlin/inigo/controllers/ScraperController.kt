@@ -1,4 +1,4 @@
-package inigo.shopscraper
+package inigo.controllers
 
 import inigo.API.ScraperSelector
 import com.google.gson.Gson

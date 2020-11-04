@@ -1,4 +1,4 @@
-package inigo.shopscraper
+package inigo.controllers
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
