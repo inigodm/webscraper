@@ -21,7 +21,7 @@ abstract class WebScrapper(var root: String, var logger: Logger = LoggerFactory.
         return findInfo(doc, type)
     }
 
-    fun getHtmlDocument(url: String): Document = throwsServiceException {
+    fun getHtmlDocument(url: String): Document = throwsServiceException (url){
         var client = WebClient(BrowserVersion.BEST_SUPPORTED)
         logger.trace("=====================================================================================================")
         logger.trace("Going to page $url")
