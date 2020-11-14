@@ -5,7 +5,7 @@ import java.util.*
 
 class PropertiesReader {
     companion object Builder {
-        var inner : Properties = Properties(0)
+        var inner : Properties = Properties()
 
         fun getProperties(): Properties{
             if (inner.isEmpty){
