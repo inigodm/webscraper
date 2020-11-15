@@ -13,70 +13,73 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import inigo.repository.ItemData
-
+import inigo.repository.RepositoryManager
 
 abstract class WebScrapper(var root: String, var logger: Logger = LoggerFactory.getLogger(WebScrapper::class.java)) {
-    fun findData(type: String): List<ItemData> {
-        val doc = getHtmlDocument(root)
-        return findInfo(doc, type)
+    var client : WebClient?
+    init {
+        client = WebClient(BrowserVersion.BEST_SUPPORTED)
+        client!!.options.isCssEnabled = false
+        client!!.options.isDownloadImages = false
+        client!!.cssErrorHandler = SilentCssErrorHandler()
+        client!!.javaScriptErrorListener = SilentJavaScriptErrorListener()
+        client!!.getOptions().setJavaScriptEnabled(true)
+        client!!.waitForBackgroundJavaScript(5000)
     }
-
-    fun getHtmlDocument(url: String): Document = throwsServiceException (url){
-        var client = WebClient(BrowserVersion.BEST_SUPPORTED)
+    protected fun getHtmlDocument(url: String): Document = throwsServiceException (url){
         logger.trace("=====================================================================================================")
         logger.trace("Going to page $url")
         logger.trace("=====================================================================================================")
-        client.options.isCssEnabled = false
-        client.options.isDownloadImages = false
-        client.cssErrorHandler = SilentCssErrorHandler()
-        client.javaScriptErrorListener = SilentJavaScriptErrorListener()
-        client.getOptions().setJavaScriptEnabled(true)
-        client.waitForBackgroundJavaScript(5000)
-        val page: HtmlPage = client.getPage(url)
+        val page: HtmlPage = client!!.getPage(url)
         return@throwsServiceException Jsoup.parse(page.asXml());
     }
 
-    protected abstract fun findInfo(doc: Document, type: String = ""): List<ItemData>
+    abstract fun updateData(type: String)
 }
 
-class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/oportunidades/", val retard: Int = 4) : WebScrapper(root) {
+class LDLCOportunitiesScrapper(var repo: RepositoryManager?,
+                               root: String = "https://www.ldlc.com/es-es/n2193/oportunidades/",
+                               val retard: Int = 4) : WebScrapper(root) {
 
-    val response = mutableListOf<ItemData>()
+    override fun updateData(type: String) {
+        repo!!.forgetProductsFromPageAndType("ldlc", type)
+        val categoriesUrls = getCategoriesUrls(getHtmlDocument(root), type)
+        categoriesUrls.forEach{ updateCategoryData(it, type) }
+        client = null
+        repo = null
+    }
 
-    override fun findInfo(doc: Document, type: String) = runBlocking {
+    fun getCategoriesUrls(doc: Document, type: String): List<String> {
+        val urls = mutableListOf<String>()
         doc.findCategories().map {
             if (type.equals("any") || it.title().equals(type, ignoreCase = true)) {
-                logger.trace("wait $retard secs")
-                delay(retard * 1000L)
-                logger.trace("GO!")
-                findProducts(it, type)
+                logger.trace("Added to search ${it.href()}")
+                urls.add(it.href())
             } else {
                 logger.trace("Skipping ${it.title()} we are searching for $type")
             }
         }
-        return@runBlocking response
+        return urls
     }
 
-    private fun findProducts(it: Element, type: String) {
-        val page = getHtmlDocument(getAbsoluteURL(it.href()))
-        page.products().map { response.add(buildItemData(it, page.category())) }
-        followPagination(page, type)
-    }
-
-
-    private fun followPagination(page: Document, type: String) {
-        val next = page.next()
-        if (next.size > 0) {
-            findProducts(next.first(), type)
+    fun updateCategoryData(categoryUrl: String, type: String) {
+        val urls = mutableListOf(categoryUrl)
+        while (urls.isNotEmpty()) {
+            updatePage(urls.removeAt(0), type, urls)
         }
     }
 
-    private fun Element.href() = this.attributes().get("href")
-    private fun Element.title() = this.child(0)?.child(0)?.text() ?: "NO"
-    private fun Document.category() = this.select(".lastBreadcrumb").text()
-    private fun Document.products() = this.select(".listing-product ul li")!!
-    private fun Document.next() = this.select(".pagination .next a")
-    private fun Document.findCategories() = this.select(".categories a")
+    fun updatePage(url: String, type: String, urlsToVisit: MutableList<String>) = runBlocking{
+        delay(retard * 1000L)
+        val page = getHtmlDocument(getAbsoluteURL(url))
+        page.products().map {
+            repo!!.saveProductData(buildItemData(it, type))
+        }
+        val next = page.next()
+        if (next.size > 0) {
+            urlsToVisit.add(next.first().href())
+        }
+    }
 
     private fun getAbsoluteURL(url: String): String {
         if (url.startsWith("/")) {
@@ -102,11 +105,9 @@ class LDLCOportunitiesScrapper(root: String = "https://www.ldlc.com/es-es/n2193/
             url = "https://www.ldlc.com${it.select(".pic a").attr("href")}"
         )
     }
-
 }
-
-suspend fun <A, B> Iterable<A>.pmap(f: suspend (A) -> B): List<B> = coroutineScope {
-    map { async(Dispatchers.IO) { f(it) } }.map { it.await() }
-}
-
-
+private fun Element.href() = this.attributes().get("href")
+private fun Element.title() = this.child(0)?.child(0)?.text() ?: "NO"
+private fun Document.products() = this.select(".listing-product ul li")!!
+private fun Document.next() = this.select(".pagination .next a")
+private fun Document.findCategories() = this.select(".categories a")

@@ -1,6 +1,5 @@
 package inigo.controllers
 
-import inigo.API.ScraperSelector
 import com.google.gson.Gson
 import inigo.exceptions.IncorrectNumberOfParams
 import inigo.repository.RepositoryConnection
@@ -24,6 +23,7 @@ class ScraperController(
             params.get("type") ?: "",
             params.get("query") ?: "")))
         logger.info("END GET in scraper")
+        System.gc()
     }
 
     fun getParamsAsMap(uri: String, urlBase: String): Map<String, String> {
@@ -34,10 +34,11 @@ class ScraperController(
         logger.info("PUT in scraper")
         val repo = RepositoryManager(RepositoryConnection("scraper.db"))
         val params = getParamsAsMap(req.getRequestURI(), "/web/")
-        val infoRetriever = InfoRetriever(repo, ScraperSelector())
-        infoRetriever.updateProductDataForPage(params.get("scrap")!!, params.get("type") ?: "")
+        val infoRetriever = InfoRetriever(repo)
+        infoRetriever.updateProductDataForPage(params.get("type") ?: "")
         res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!)))
         logger.info("END PUT in scraper")
+        System.gc()
     }
 
     override fun doPost(req: HttpServletRequest, res: HttpServletResponse) {
@@ -58,6 +59,7 @@ class AlertController(
         val params = getParamsAsMap(req.getRequestURI(), "/web/")
         res.writer.write(Gson().toJson(repo.findNewProductsIn(params.get("alert")!!, params.get("type")?: "")))
         logger.info("END GET in alert")
+        System.gc()
     }
 
     fun getParamsAsMap(uri: String, urlBase: String): Map<String, String> {
