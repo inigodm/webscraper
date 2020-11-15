@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import inigo.exceptions.IncorrectNumberOfParams
 import inigo.repository.RepositoryConnection
 import inigo.repository.RepositoryManager
+import inigo.scraper.LDLCOportunitiesScrapper
 import inigo.worker.InfoRetriever
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -34,7 +35,7 @@ class ScraperController(
         logger.info("PUT in scraper")
         val repo = RepositoryManager(RepositoryConnection("scraper.db"))
         val params = getParamsAsMap(req.getRequestURI(), "/web/")
-        val infoRetriever = InfoRetriever(repo)
+        val infoRetriever = InfoRetriever(LDLCOportunitiesScrapper(repo))
         infoRetriever.updateProductDataForPage(params.get("type") ?: "")
         res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!)))
         logger.info("END PUT in scraper")
