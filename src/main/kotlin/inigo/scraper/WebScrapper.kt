@@ -16,21 +16,19 @@ import inigo.repository.ItemData
 import inigo.repository.RepositoryManager
 
 abstract class WebScrapper(var root: String, var logger: Logger = LoggerFactory.getLogger(WebScrapper::class.java)) {
-    var client : WebClient?
-    init {
-        client = WebClient(BrowserVersion.BEST_SUPPORTED)
-        client!!.options.isCssEnabled = false
-        client!!.options.isDownloadImages = false
-        client!!.cssErrorHandler = SilentCssErrorHandler()
-        client!!.javaScriptErrorListener = SilentJavaScriptErrorListener()
-        client!!.getOptions().setJavaScriptEnabled(true)
-        client!!.waitForBackgroundJavaScript(5000)
-    }
     protected fun getHtmlDocument(url: String): Document = throwsServiceException (url){
+        val client = WebClient(BrowserVersion.BEST_SUPPORTED)
+        client.options.isCssEnabled = false
+        client.options.isDownloadImages = false
+        client.cssErrorHandler = SilentCssErrorHandler()
+        client.javaScriptErrorListener = SilentJavaScriptErrorListener()
+        client.getOptions().setJavaScriptEnabled(true)
+        client.waitForBackgroundJavaScript(5000)
         logger.trace("=====================================================================================================")
         logger.trace("Going to page $url")
         logger.trace("=====================================================================================================")
-        val page: HtmlPage = client!!.getPage(url)
+        val page: HtmlPage = client.getPage(url)
+        client.close()
         return@throwsServiceException Jsoup.parse(page.asXml());
     }
 
@@ -45,7 +43,6 @@ class LDLCOportunitiesScrapper(var repo: RepositoryManager?,
         repo!!.forgetProductsFromPageAndType("ldlc", type)
         val categoriesUrls = getCategoriesUrls(getHtmlDocument(root), type)
         categoriesUrls.forEach{ updateCategoryData(it, type) }
-        client = null
         repo = null
     }
 
