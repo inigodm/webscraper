@@ -102,8 +102,8 @@ class RepositoryManager(
 
     fun findNewProductsIn(page: String, type: String): List<ItemData> {
         return when(type.isBlank()){
-            true -> repo.findBy("SELECT * FROM products WHERE last_updated_at = created_at and page = ? order by type", listOf(page))
-            false -> repo.findBy("SELECT * FROM products WHERE last_updated_at = created_at and page = ? and type = ?", listOf(page, type))
+            true -> repo.findBy("SELECT * FROM products WHERE active=1 and last_updated_at = (select max(last_updated_at) from products) and last_updated_at = created_at and page = ? order by type", listOf(page))
+            false -> repo.findBy("SELECT * FROM products WHERE active=1 and last_updated_at = (select max(last_updated_at) from products) and last_updated_at = created_at and page = ? and type = ?", listOf(page, type))
         }
     }
 }
