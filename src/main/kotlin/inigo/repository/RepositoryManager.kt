@@ -20,7 +20,9 @@ class RepositoryManager(
     }
 
     private fun saveHistoricalData(itemData: ItemData, matchingItems: List<ItemData>) {
-        itemData.extra.put("previous", matchingItems[0].price.toString())
+        if (matchingItems[0].price.toString() != itemData.price.toString()) {
+            itemData.extra.put("previous", matchingItems[0].price.toString())
+        }
     }
 
     private fun insertProduct(itemData: ItemData) {
@@ -80,11 +82,11 @@ class RepositoryManager(
     ): List<ItemData> {
         return when (type.isBlank()) {
             true -> repo.findBy(
-                "Select * from products where page = ? and lower(name) like ?",
+                "Select * from products where active = 1 and page = ? and lower(name) like ?",
                 listOf(page, "%${query.toLowerCase()}%")
             )
             false -> repo.findBy(
-                "Select * from products where page = ? and type = ? and lower(name) like ?",
+                "Select * from products where active = 1 and page = ? and type = ? and lower(name) like ?",
                 listOf(page, type, "%${query.toLowerCase()}%")
             )
         }
@@ -95,8 +97,8 @@ class RepositoryManager(
         page: String
     ): List<ItemData> {
         return when (type.isBlank()) {
-            true -> repo.findBy("Select * from products where page = ?", listOf(page))
-            false -> repo.findBy("Select * from products where page = ? and type = ?", listOf(page, type))
+            true -> repo.findBy("Select * from products where active = 1 and page = ?", listOf(page))
+            false -> repo.findBy("Select * from products where active = 1 and page = ? and type = ?", listOf(page, type))
         }
     }
 
