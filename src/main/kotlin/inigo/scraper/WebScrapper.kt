@@ -42,16 +42,16 @@ class LDLCOportunitiesScrapper(var repo: RepositoryManager?,
     override fun updateData(type: String) {
         repo!!.forgetProductsFromPageAndType("ldlc", type)
         val categoriesUrls = getCategoriesUrls(getHtmlDocument(root), type)
-        categoriesUrls.forEach{ updateCategoryData(it, type) }
+        categoriesUrls.forEach{ updateCategoryData(it.second, it.first) }
         repo = null
     }
 
-    fun getCategoriesUrls(doc: Document, type: String): List<String> {
-        val urls = mutableListOf<String>()
+    fun getCategoriesUrls(doc: Document, type: String): List<Pair<String, String>> {
+        val urls = mutableListOf<Pair<String, String>>()
         doc.findCategories().map {
             if (type.equals("any") || it.title().equals(type, ignoreCase = true)) {
                 logger.trace("Added to search ${it.href()}")
-                urls.add(it.href())
+                urls.add(Pair(it.title(), it.href()))
             } else {
                 logger.trace("Skipping ${it.title()} we are searching for $type")
             }
