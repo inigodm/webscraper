@@ -10,7 +10,7 @@ class RepositoryManager(
     var logger: Logger = LoggerFactory.getLogger(RepositoryManager::class.java)) {
 
     fun saveProductData(itemData: ItemData) {
-        val matchingItems = nonexitentProduct(itemData)
+        val matchingItems = findMatchingItems(itemData)
         if (matchingItems.isEmpty()) {
             insertProduct(itemData)
         } else {
@@ -50,11 +50,19 @@ class RepositoryManager(
                 itemData)
     }
 
-    fun nonexitentProduct(itemData: ItemData) : List<ItemData> {
-        return repo.findBy("Select * from products where " +
-                "page = ? " +
-                " and name = ?" +
-                " and desc = ?", listOf(itemData.page, itemData.name, itemData.desc))
+    fun findMatchingItems(itemData: ItemData) : List<ItemData> {
+        return repo.findBy2("""Select * from products where 
+                page = ? 
+                and name = ?
+                and desc = ? 
+                and price = ? 
+                and url = ? """,
+                listOf(itemData.page,
+                    itemData.name,
+                    itemData.desc,
+                    itemData.price,
+                    itemData.url)
+                )
 
     }
 

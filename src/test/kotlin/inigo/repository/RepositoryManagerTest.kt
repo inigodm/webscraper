@@ -29,7 +29,7 @@ class RepositoryManagerTest{
 
     @Test
      fun `item should be inserted if non existent`() {
-        every { repo.findBy(any(), any())} returns emptyList()
+        every { repo.findBy2(any(), any())} returns emptyList()
         every { logger.trace(any()) } returns Unit
         every { repo.executePreparedStatement(any(), any()) } returns Unit
         val item = randomDataItem();
@@ -42,7 +42,7 @@ class RepositoryManagerTest{
 
     @Test
     fun `item should insert nothing if item has no name nor desc`() {
-        every { repo.findBy(any(), any())} returns emptyList()
+        every { repo.findBy2(any(), any())} returns emptyList()
         every { logger.trace(any()) } returns Unit
         every { repo.executePreparedStatement(any(), any()) } returns Unit
         val item = randomDataItem();
@@ -59,7 +59,7 @@ class RepositoryManagerTest{
     fun `When item exists must be updated`() {
         val item = randomDataItem();
         val newItem = item.copy()
-        every { repo.findBy(any(), any())} returns listOf(item)
+        every { repo.findBy2(any(), any())} returns listOf(item)
         every { logger.trace(any()) } returns Unit
         every { repo.executeUpdate(any(), any()) } returns Unit
 
@@ -74,7 +74,7 @@ class RepositoryManagerTest{
         val item = randomDataItem();
         val newItem = item.copy()
         newItem.price = newItem.price - 100
-        every { repo.findBy(any(), any())} returns listOf(item)
+        every { repo.findBy2(any(), any())} returns listOf(item)
         every { logger.trace(any()) } returns Unit
         every { repo.executeUpdate(any(), any()) } returns Unit
 

@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import inigo.config.PropertiesReader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.Serializable
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.sql.Connection
@@ -145,10 +146,49 @@ class RepositoryConnection(dataBaseFile: String, var logger: Logger = LoggerFact
             return res
         }
     }
+
+    fun findBy2(sql: String, vars: List<Any>): List<ItemData> {
+        DriverManager.getConnection(URL).use { conn ->
+            val statement = conn?.prepareStatement(sql)!!
+            val gson = Gson()
+            val res = mutableListOf<ItemData>()
+            var i = 1
+            statement.use {
+                vars.forEach{
+                    if (it.isInstanceOf(String::class.java)) {
+                        statement.setString(i, it as String)
+                    }
+                    else {
+                        statement.setInt(i, it as Int)
+                    }
+                    i++
+                }
+                val resultSet = statement.executeQuery()
+                while (resultSet.next()) {
+                    with(resultSet) {
+                        res.add(
+                                ItemData(name = resultSet.getString("name"),
+                                        desc = resultSet.getString("desc"),
+                                        price = resultSet.getInt("price"),
+                                        extra = gson.fromJson(resultSet.getString("extra"), MapParametrizedType()),
+                                        page = resultSet.getString("page"),
+                                        type = resultSet.getString("type"),
+                                        url = resultSet.getString("url"))
+                        )
+                    }
+                }
+            }
+            return res
+        }
+    }
+
     private fun hashType(type: String): String {
         return type.replace("[^0-9^a-z^A-Z]".toRegex(), "").toLowerCase()
     }
 }
+
+fun <T> Any.isInstanceOf(expectedClass: Class<T>) = expectedClass.isInstance(this)
+
 
 fun main(args: Array<String>) {
     var conn = RepositoryConnection("test.db")
