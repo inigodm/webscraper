@@ -14,17 +14,10 @@ class RepositoryManager(
         if (matchingItems.isEmpty()) {
             insertProduct(itemData)
         } else {
-            saveHistoricalData(itemData, matchingItems)
             updateProduct(itemData)
         }
     }
-
-    private fun saveHistoricalData(itemData: ItemData, matchingItems: List<ItemData>) {
-        if (matchingItems[0].price.toString() != itemData.price.toString()) {
-            itemData.extra.put("previous", matchingItems[0].price.toString())
-        }
-    }
-
+    
     private fun insertProduct(itemData: ItemData) {
         if (itemData.name.isEmpty() && itemData.desc.isEmpty()){
             return
