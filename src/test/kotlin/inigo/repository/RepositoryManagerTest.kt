@@ -84,4 +84,19 @@ class RepositoryManagerTest{
         verify { logger.trace("Updating " + item.name) }
         assertEquals(newItem.extra.get("previous"), item.price.toString())
     }
+
+    @Test
+    fun `Should not save items if they do not have name nor description`() {
+        val item = randomDataItem()
+        item.name = ""
+        item.desc = ""
+
+        every { repo.findBy2(any(), any())} returns emptyList()
+        every { logger.trace(any()) } returns Unit
+
+        sut.saveProductData(item)
+
+        verify (exactly = 0) { repo.executePreparedStatement(any(), any()) }
+        verify (exactly = 0) { logger.trace(any()) }
+    }
  }

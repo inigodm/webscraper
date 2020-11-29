@@ -26,10 +26,10 @@ class RepositoryManager(
     }
 
     private fun insertProduct(itemData: ItemData) {
-        logger.trace("Inserting " + itemData.name)
         if (itemData.name.isEmpty() && itemData.desc.isEmpty()){
             return
         }
+        logger.trace("Inserting " + itemData.name)
         repo.executePreparedStatement(
                 "insert into products (name, desc, price, extra, page, type, active, created_at, last_updated_at, url)" +
                         " values (?, ?, ?, ?, ?, ?, 1, " +
