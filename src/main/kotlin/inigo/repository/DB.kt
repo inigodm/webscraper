@@ -117,37 +117,7 @@ class RepositoryConnection(dataBaseFile: String, var logger: Logger = LoggerFact
 
     private fun isConnected() = conn != null && !conn!!.isClosed()
 
-    fun findBy(sql: String, vars: List<String>): List<ItemData> {
-        DriverManager.getConnection(URL).use { conn ->
-            val statement = conn?.prepareStatement(sql)!!
-            val gson = Gson()
-            val res = mutableListOf<ItemData>()
-            var i = 1
-            statement.use {
-                vars.forEach{
-                    statement.setString(i, it)
-                    i++
-                }
-                val resultSet = statement.executeQuery()
-                while (resultSet.next()) {
-                    with(resultSet) {
-                        res.add(
-                            ItemData(name = resultSet.getString("name"),
-                                desc = resultSet.getString("desc"),
-                                price = resultSet.getInt("price"),
-                                extra = gson.fromJson(resultSet.getString("extra"), MapParametrizedType()),
-                                page = resultSet.getString("page"),
-                                type = resultSet.getString("type"),
-                                url = resultSet.getString("url"))
-                        )
-                    }
-                }
-            }
-            return res
-        }
-    }
-
-    fun findBy2(sql: String, vars: List<Any>): List<ItemData> {
+    fun findBy(sql: String, vars: List<Any>): List<ItemData> {
         DriverManager.getConnection(URL).use { conn ->
             val statement = conn?.prepareStatement(sql)!!
             val gson = Gson()

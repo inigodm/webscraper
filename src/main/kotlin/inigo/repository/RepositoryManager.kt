@@ -17,7 +17,7 @@ class RepositoryManager(
             updateProduct(itemData)
         }
     }
-    
+
     private fun insertProduct(itemData: ItemData) {
         if (itemData.name.isEmpty() && itemData.desc.isEmpty()){
             return
@@ -44,7 +44,7 @@ class RepositoryManager(
     }
 
     fun findMatchingItems(itemData: ItemData) : List<ItemData> {
-        return repo.findBy2("""Select * from products where 
+        return repo.findBy("""Select * from products where 
                 page = ? 
                 and name = ?
                 and desc = ? 
