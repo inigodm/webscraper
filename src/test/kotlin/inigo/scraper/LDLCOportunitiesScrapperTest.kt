@@ -26,6 +26,7 @@ internal class LDLCOportunitiesScrapperTest {
         every { repo.forgetProductsFromPageAndType(any(), any()) } returns Unit
         every { sut.getHtmlDocument(root) } returns mainpage().mainpageDoc
         every { logger.trace(any()) } returns Unit
+        every { repo.saveProductData(any()) } returns Unit
 
         sut.updateData("Tarjeta Gráfica")
 

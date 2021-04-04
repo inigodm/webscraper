@@ -1,17 +1,13 @@
 package inigo.repository
 
-import assertk.assertThat
 import io.mockk.MockKAnnotations
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import randomDataItem
 
 class RepositoryManagerTest{
@@ -52,7 +48,6 @@ class RepositoryManagerTest{
         sut.saveProductData(item)
 
         verify(exactly = 0) { repo.executePreparedStatement(any(), eq(item)) }
-        verify { logger.trace("Inserting " + item.name) }
     }
 
     @Test
@@ -67,22 +62,6 @@ class RepositoryManagerTest{
 
         verify(exactly = 1) { repo.executeUpdate(any(), eq(item)) }
         verify { logger.trace("Updating " + item.name) }
-    }
-
-    @Test
-    fun `When item exists must be updated and if price changes must be saved as last price`() {
-        val item = randomDataItem();
-        val newItem = item.copy()
-        newItem.price = newItem.price - 100
-        every { repo.findBy(any(), any())} returns listOf(item)
-        every { logger.trace(any()) } returns Unit
-        every { repo.executeUpdate(any(), any()) } returns Unit
-
-        sut.saveProductData(newItem)
-
-        verify(exactly = 1) { repo.executeUpdate(any(), eq(newItem)) }
-        verify { logger.trace("Updating " + item.name) }
-        assertEquals(newItem.extra.get("previous"), item.price.toString())
     }
 
     @Test
