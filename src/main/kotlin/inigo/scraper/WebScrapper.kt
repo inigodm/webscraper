@@ -15,6 +15,7 @@ import org.jsoup.nodes.Element
 import inigo.repository.ItemData
 import inigo.repository.RepositoryManager
 import org.jsoup.nodes.TextNode
+import java.text.Normalizer
 
 abstract class WebScrapper(var root: String, var logger: Logger = LoggerFactory.getLogger(WebScrapper::class.java)) {
     fun getHtmlDocument(url: String): Document = throwsServiceException (url){
@@ -52,7 +53,7 @@ class LDLCOportunitiesScrapper(var repo: RepositoryManager?,
     fun getCategoriesUrls(doc: Document, type: String): List<Pair<String, String>> {
         val urls = mutableListOf<Pair<String, String>>()
         doc.findCategories().map {
-            if ((type.equals("any") && !it.title().equals("NOOO")) || it.title().equals(type, ignoreCase = true)) {
+            if ((type.equals("any") && !it.title().equals("NOOO")) || it.title().equals(type.unaccent().replace(" ", ""), ignoreCase = true)) {
                 logger.trace("Added to search ${it.href()}")
                 urls.add(Pair(it.title(), it.href()))
             } else {
@@ -109,7 +110,7 @@ class LDLCOportunitiesScrapper(var repo: RepositoryManager?,
 private fun Element.href() = this.attributes().get("href")
 private fun Element.title() =
     try {
-        this.child(0).attributes().get("alt")
+        this.child(0).attributes().get("alt").unaccent().replace(" ", "")
     } catch (e: Throwable) {
         "NOOO"
     }
@@ -117,3 +118,11 @@ private fun Element.title() =
 private fun Document.products() = this.select(".listing-product ul li")!!
 private fun Document.next() = this.select(".pagination .next a")
 private fun Document.findCategories() = this.select(".categories a")
+
+
+private val REGEX_UNACCENT = "\\p{InCombiningDiacriticalMarks}+".toRegex()
+
+fun CharSequence.unaccent(): String {
+    val temp = Normalizer.normalize(this, Normalizer.Form.NFD)
+    return REGEX_UNACCENT.replace(temp, "")
+}
