@@ -53,7 +53,7 @@ class LDLCOportunitiesScrapper(var repo: RepositoryManager?,
     fun getCategoriesUrls(doc: Document, type: String): List<Pair<String, String>> {
         val urls = mutableListOf<Pair<String, String>>()
         doc.findCategories().map {
-            if ((type.equals("any") && !it.title().equals("NOOO")) || it.title().equals(type.unaccent().replace(" ", ""), ignoreCase = true)) {
+            if ((type.equals("any") && !it.title().equals("NOOO")) || it.title().equals(type, ignoreCase = true)) {
                 logger.trace("Added to search ${it.href()}")
                 urls.add(Pair(it.title(), it.href()))
             } else {
@@ -110,7 +110,7 @@ class LDLCOportunitiesScrapper(var repo: RepositoryManager?,
 private fun Element.href() = this.attributes().get("href")
 private fun Element.title() =
     try {
-        this.child(0).attributes().get("alt").unaccent().replace(" ", "")
+        this.child(0).attributes().get("alt")
     } catch (e: Throwable) {
         "NOOO"
     }

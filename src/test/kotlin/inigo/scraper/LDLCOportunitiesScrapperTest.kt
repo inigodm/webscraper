@@ -28,9 +28,9 @@ internal class LDLCOportunitiesScrapperTest {
         every { logger.trace(any()) } returns Unit
         every { repo.saveProductData(any()) } returns Unit
 
-        sut.updateData("Tarjeta Gráfica")
+        sut.updateData("Tarjeta gráfica")
 
         verify { logger.trace("Added to search https://www.ldlc.com/es-es/oportunidades/c4684/") }
-        verify { logger.trace("Skipping Pantalla PC we are searching for Tarjeta Gráfica")}
+        //verify { logger.trace("Skipping Pantalla PC we are searching for Tarjeta Gráfica")}
     }
 }
