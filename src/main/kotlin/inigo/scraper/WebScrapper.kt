@@ -104,7 +104,13 @@ class LDLCOportunitiesScrapper(var repo: RepositoryManager?,
     }
 }
 private fun Element.href() = this.attributes().get("href")
-private fun Element.title() = this.child(0)?.child(0)?.text() ?: "NO"
+private fun Element.title() =
+    try {
+        this.child(0).attributes().get("alt")
+    } catch (e: Throwable) {
+        "NOOO"
+    }
+
 private fun Document.products() = this.select(".listing-product ul li")!!
 private fun Document.next() = this.select(".pagination .next a")
 private fun Document.findCategories() = this.select(".categories a")
