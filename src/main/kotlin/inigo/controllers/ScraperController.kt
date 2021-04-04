@@ -15,10 +15,11 @@ import javax.servlet.http.HttpServletResponse
 
 @WebServlet(name = "SCRAPER", value = ["/scrap/*"])
 class ScraperController(
+    val repo: RepositoryManager = RepositoryManager(RepositoryConnection("scraper.db")),
     var logger:Logger = LoggerFactory.getLogger(ScraperController::class.java)) : HttpServlet() {
-    override fun doGet(req: HttpServletRequest, res: HttpServletResponse) {
+
+    public override fun doGet(req: HttpServletRequest, res: HttpServletResponse) {
         logger.info("GET in scraper")
-        val repo = RepositoryManager(RepositoryConnection("scraper.db"))
         val params = getParamsAsMap(req.getRequestURI(), "/web/")
         res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!,
             params.get("type") ?: "",
@@ -31,13 +32,13 @@ class ScraperController(
         return uri.replaceFirst("$urlBase", "").split("/").toMap()
     }
 
-    override fun doPut(req: HttpServletRequest, res: HttpServletResponse) {
+    public override fun doPut(req: HttpServletRequest, res: HttpServletResponse) {
         logger.info("PUT in scraper")
         val repo = RepositoryManager(RepositoryConnection("scraper.db"))
         val params = getParamsAsMap(req.getRequestURI(), "/web/")
         val infoRetriever = InfoRetriever(LDLCOportunitiesScrapper(repo))
         infoRetriever.updateProductDataForPage(params.get("type") ?: "")
-        res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!)))
+        res.writer.write(Gson().toJson(repo.findProductsOf(params.get("scrap")!!, params.get("type") ?: "")))
         logger.info("END PUT in scraper")
         System.gc()
     }

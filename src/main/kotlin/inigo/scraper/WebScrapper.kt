@@ -14,9 +14,10 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import inigo.repository.ItemData
 import inigo.repository.RepositoryManager
+import org.jsoup.nodes.TextNode
 
 abstract class WebScrapper(var root: String, var logger: Logger = LoggerFactory.getLogger(WebScrapper::class.java)) {
-    protected fun getHtmlDocument(url: String): Document = throwsServiceException (url){
+    fun getHtmlDocument(url: String): Document = throwsServiceException (url){
         val client = WebClient(BrowserVersion.BEST_SUPPORTED)
         client.options.isCssEnabled = false
         client.options.isDownloadImages = false
@@ -37,9 +38,11 @@ abstract class WebScrapper(var root: String, var logger: Logger = LoggerFactory.
 
 class LDLCOportunitiesScrapper(var repo: RepositoryManager?,
                                root: String = "https://www.ldlc.com/es-es/n2193/oportunidades/",
-                               val retard: Int = 4) : WebScrapper(root) {
+                               val retard: Int = 4,
+                               log: Logger = LoggerFactory.getLogger(WebScrapper::class.java)) :
+    WebScrapper(root, log) {
 
-    override fun updateData(type: String) {
+    public override fun updateData(type: String) {
         repo!!.forgetProductsFromPageAndType("ldlc", type)
         val categoriesUrls = getCategoriesUrls(getHtmlDocument(root), type)
         categoriesUrls.forEach{ updateCategoryData(it.second, it.first) }
